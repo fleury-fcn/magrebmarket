@@ -183,6 +183,8 @@ const Home = () => {
   const [liveFeaturedAds, setLiveFeaturedAds] = useState<LiveListing[]>([]);
   const [totalListingsCount, setTotalListingsCount] = useState<number | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [recentSearches, setRecentSearches] = useState<string[]>([]);
+  const [searchFocused, setSearchFocused] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const activeCountry = COUNTRY_OPTIONS.find(country => country.value === locationCountry) ?? fallbackCountry;
 
@@ -190,6 +192,23 @@ const Home = () => {
     if (language === "en") return `${count} listing${count > 1 ? "s" : ""}`;
     if (language === "ar") return `${count} إعلان`;
     return `${count} annonce${count > 1 ? "s" : ""}`;
+  };
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem('mm_recent_searches');
+      if (stored) setRecentSearches(JSON.parse(stored) as string[]);
+    } catch { /* ignore */ }
+  }, []);
+
+  const saveSearch = (q: string) => {
+    const trimmed = q.trim();
+    if (!trimmed) return;
+    setRecentSearches(prev => {
+      const next = [trimmed, ...prev.filter(s => s !== trimmed)].slice(0, 8);
+      try { localStorage.setItem('mm_recent_searches', JSON.stringify(next)); } catch { /* ignore */ }
+      return next;
+    });
   };
 
   useEffect(() => {
@@ -437,13 +456,15 @@ const Home = () => {
             <div className="logo-box">mm</div>
             <strong>Maghreb Market</strong>
           </div>
-          <div className="search-bar">
+          <div className="search-bar" style={{ position: 'relative', overflow: 'visible' }}>
             <input
               type="text"
               placeholder={header.searchPlaceholder}
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
-              onKeyDown={e => { if (e.key === 'Enter') router.push(`/search?q=${encodeURIComponent(searchQuery)}`); }}
+              onKeyDown={e => { if (e.key === 'Enter') { saveSearch(searchQuery); router.push(`/search?q=${encodeURIComponent(searchQuery)}`); } }}
+              onFocus={() => setSearchFocused(true)}
+              onBlur={() => setTimeout(() => setSearchFocused(false), 150)}
             />
             <div className="search-divider" />
             <div className="search-location">
@@ -469,7 +490,7 @@ const Home = () => {
                 ))}
               </select>
             </div>
-            <button type="button" className="search-btn" onClick={() => router.push(`/search?q=${encodeURIComponent(searchQuery)}`)}>
+            <button type="button" className="search-btn" onClick={() => { saveSearch(searchQuery); router.push(`/search?q=${encodeURIComponent(searchQuery)}`); }}>
               <svg width="16" height="16" viewBox="0 0 24 24">
                 <path
                   d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"
@@ -481,6 +502,41 @@ const Home = () => {
               </svg>
               {header.searchButton}
             </button>
+            {searchFocused && recentSearches.length > 0 && (
+              <div style={{
+                position: 'absolute', top: '100%', left: 0, right: 0,
+                background: '#fff', border: '1px solid #ddd', borderRadius: 8,
+                boxShadow: '0 4px 16px rgba(0,0,0,0.12)', zIndex: 1000,
+                marginTop: 4, overflow: 'hidden',
+              }}>
+                <div style={{ padding: '8px 12px', fontSize: 11, color: '#888', fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.5 }}>
+                  Recherches récentes
+                </div>
+                {recentSearches.map(s => (
+                  <button
+                    key={s}
+                    type="button"
+                    onMouseDown={() => { setSearchQuery(s); saveSearch(s); router.push(`/search?q=${encodeURIComponent(s)}`); }}
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: 8,
+                      width: '100%', padding: '8px 12px',
+                      background: 'none', border: 'none', cursor: 'pointer',
+                      textAlign: 'left', fontSize: 14, color: '#333',
+                    }}
+                  >
+                    <span style={{ fontSize: 14, color: '#aaa' }}>🕐</span>
+                    {s}
+                  </button>
+                ))}
+                <button
+                  type="button"
+                  onMouseDown={() => { setRecentSearches([]); try { localStorage.removeItem('mm_recent_searches'); } catch { /* ignore */ } }}
+                  style={{ display: 'block', width: '100%', padding: '8px 12px', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'center', fontSize: 12, color: '#e30613', borderTop: '1px solid #f0f0f0' }}
+                >
+                  Effacer l&apos;historique
+                </button>
+              </div>
+            )}
           </div>
           <div className="header-actions">
             {isAuthenticated ? (
