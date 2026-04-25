@@ -47,7 +47,7 @@ export default function MapView({ city, country, label, zoom = 12, height = 300 
       const L = (await import('leaflet')).default;
 
       // Fix default icon paths broken by webpack
-      (L.Icon.Default.prototype as unknown as Record<string, unknown>)['_getIconUrl'] = undefined;
+      Reflect.deleteProperty(L.Icon.Default.prototype, '_getIconUrl');
       L.Icon.Default.mergeOptions({
         iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
         iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',

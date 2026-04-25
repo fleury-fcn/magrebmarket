@@ -54,7 +54,7 @@ export default function SearchMap({ ads, height = 480 }: Props) {
       const L = (await import('leaflet')).default;
 
       // Fix webpack icon paths
-      (L.Icon.Default.prototype as unknown as Record<string, unknown>)['_getIconUrl'] = undefined;
+      Reflect.deleteProperty(L.Icon.Default.prototype, '_getIconUrl');
       L.Icon.Default.mergeOptions({
         iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
         iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
