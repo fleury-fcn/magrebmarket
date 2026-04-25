@@ -82,7 +82,14 @@ export default function MapView({ city, country, label, zoom = 12, height = 300 
 
   // Cleanup on unmount
   useEffect(() => {
-    return () => { if (mapRef.current) { mapRef.current.remove(); mapRef.current = null; } };
+    return () => {
+      const m = mapRef.current;
+      mapRef.current = null;
+      if (m && (m as unknown as Record<string, unknown>)['_leaflet_id'] != null) {
+        m.off();
+        m.remove();
+      }
+    };
   }, []);
 
   return (

@@ -126,7 +126,14 @@ export default function SearchMap({ ads, height = 480 }: Props) {
   }, [ads]);
 
   useEffect(() => {
-    return () => { if (mapRef.current) { mapRef.current.remove(); mapRef.current = null; } };
+    return () => {
+      const m = mapRef.current;
+      mapRef.current = null;
+      if (m && (m as unknown as Record<string, unknown>)['_leaflet_id'] != null) {
+        m.off();
+        m.remove();
+      }
+    };
   }, []);
 
   return (
