@@ -44,6 +44,43 @@ export type SearchAlert = {
   created_at: string;
 };
 
+export const updateProfile = async (data: {
+  first_name?: string;
+  last_name?: string;
+  phone_number?: string;
+  city?: string;
+  country?: string;
+}) => {
+  return apiFetch<Record<string, unknown>>('auth/profile/', {
+    method: 'PATCH',
+    body: JSON.stringify(data),
+  });
+};
+
+export const changePassword = async (oldPassword: string, newPassword: string) => {
+  return apiFetch<Record<string, unknown>>('auth/password/', {
+    method: 'POST',
+    body: JSON.stringify({ old_password: oldPassword, new_password: newPassword }),
+  });
+};
+
+export const deleteAccount = async () => {
+  return apiFetch<void>('auth/profile/', { method: 'DELETE' });
+};
+
+export const fetchConversationMessages = async (conversationId: string) => {
+  return apiFetch<{ id: string; content: string; sender: number; created_at: string }[]>(
+    `messages/conversations/${conversationId}/messages/`
+  );
+};
+
+export const sendMessage = async (conversationId: string, content: string) => {
+  return apiFetch<{ id: string; content: string; sender: number; created_at: string }>(
+    `messages/conversations/${conversationId}/messages/`,
+    { method: 'POST', body: JSON.stringify({ content }) }
+  );
+};
+
 export const fetchSearchAlerts = async (): Promise<SearchAlert[]> => {
   const data = await apiFetch<PaginatedResponse<SearchAlert> | SearchAlert[]>('search-alerts/');
   return Array.isArray(data) ? data : (data.results ?? []);

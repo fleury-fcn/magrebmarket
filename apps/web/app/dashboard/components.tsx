@@ -1,8 +1,8 @@
 import Link from 'next/link';
-import type { Dispatch, ReactNode } from 'react';
+import React, { type Dispatch, type ReactNode } from 'react';
 import type { AuthUser } from '../auth/types';
 import type { ConversationItem, DashboardStats, DashboardTab, FavoriteItem, ListingItem } from './types';
-import { formatPrice, timeAgo, type SearchAlert } from './services';
+import { formatPrice, timeAgo, type SearchAlert, updateProfile, changePassword, deleteAccount } from './services';
 
 const STATUS_LABELS: Record<string, string> = {
   published: '✅ Publiée',
@@ -235,31 +235,133 @@ export function FavoritesTab({ favorites, onRemove }: Readonly<{ favorites: Favo
   );
 }
 
-export function ProfileTab({ user }: Readonly<{ user: AuthUser }>) {
+export function ProfileTab({ user, onUpdate }: Readonly<{ user: AuthUser; onUpdate?: (_u: Partial<AuthUser>) => void }>) {
+  const [editing, setEditing] = React.useState(false);
+  const [form, setForm] = React.useState({ first_name: user.first_name ?? '', last_name: user.last_name ?? '', phone_number: user.phone_number ?? '', city: user.city ?? '', country: user.country ?? '' });
+  const [saving, setSaving] = React.useState(false);
+  const [msg, setMsg] = React.useState<{ type: 'ok' | 'err'; text: string } | null>(null);
+
+  const handleSave = async () => {
+    setSaving(true); setMsg(null);
+    try {
+      await updateProfile(form);
+      setMsg({ type: 'ok', text: 'Profil mis à jour ✅' });
+      setEditing(false);
+      onUpdate?.(form);
+    } catch {
+      setMsg({ type: 'err', text: 'Erreur lors de la sauvegarde' });
+    } finally { setSaving(false); }
+  };
+
   return (
     <Card>
-      <div style={{ padding: 16, borderBottom: `1px solid ${LBC.gray100}`, fontWeight: 700 }}>Mon profil</div>
-      <div style={{ padding: 16, color: LBC.gray700, lineHeight: 1.7 }}>
-        <div><strong>Nom:</strong> {user.first_name} {user.last_name}</div>
-        <div><strong>Email:</strong> {user.email}</div>
-        <div><strong>Téléphone:</strong> {user.phone_number || '—'}</div>
-        <div><strong>Pays:</strong> {user.country || '—'}</div>
-        <div><strong>Ville:</strong> {user.city || '—'}</div>
-        <div><strong>Compte vérifié:</strong> {user.is_verified ? 'Oui' : 'Non'}</div>
+      <div style={{ padding: 16, borderBottom: `1px solid ${LBC.gray100}`, fontWeight: 700, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        Mon profil
+        <button onClick={() => { setEditing(e => !e); setMsg(null); }} style={{ border: `1px solid ${LBC.gray200}`, background: LBC.white, borderRadius: 6, padding: '6px 12px', cursor: 'pointer', fontWeight: 600 }}>
+          {editing ? 'Annuler' : '✏️ Modifier'}
+        </button>
+      </div>
+      <div style={{ padding: 16 }}>
+        {msg && <div style={{ marginBottom: 12, padding: '8px 12px', borderRadius: 6, background: msg.type === 'ok' ? LBC.greenLight : LBC.redLight, color: msg.type === 'ok' ? LBC.green : LBC.red, fontWeight: 600 }}>{msg.text}</div>}
+        {editing ? (
+          <div style={{ display: 'grid', gap: 12 }}>
+            {(['first_name', 'last_name', 'phone_number', 'city', 'country'] as const).map(field => (
+              <label key={field} style={{ display: 'flex', flexDirection: 'column', gap: 4, fontSize: 13 }}>
+                <span style={{ color: LBC.gray500, textTransform: 'capitalize' }}>{field.replace('_', ' ')}</span>
+                <input value={form[field]} onChange={e => setForm(f => ({ ...f, [field]: e.target.value }))} style={{ border: `1px solid ${LBC.gray200}`, borderRadius: 6, padding: '8px 10px', fontSize: 14 }} />
+              </label>
+            ))}
+            <button onClick={handleSave} disabled={saving} style={{ background: LBC.orange, color: LBC.white, border: 'none', borderRadius: 7, padding: '10px 18px', fontWeight: 700, cursor: 'pointer', opacity: saving ? 0.7 : 1 }}>
+              {saving ? 'Sauvegarde…' : 'Enregistrer'}
+            </button>
+          </div>
+        ) : (
+          <div style={{ color: LBC.gray700, lineHeight: 1.9 }}>
+            <div><strong>Prénom:</strong> {user.first_name || '—'}</div>
+            <div><strong>Nom:</strong> {user.last_name || '—'}</div>
+            <div><strong>Email:</strong> {user.email}</div>
+            <div><strong>Téléphone:</strong> {user.phone_number || '—'}</div>
+            <div><strong>Pays:</strong> {user.country || '—'}</div>
+            <div><strong>Ville:</strong> {user.city || '—'}</div>
+            <div><strong>Compte vérifié:</strong> {user.is_verified ? '✅ Oui' : '❌ Non'}</div>
+          </div>
+        )}
       </div>
     </Card>
   );
 }
 
-export function SettingsTab() {
+export function SettingsTab({ onAccountDeleted }: Readonly<{ onAccountDeleted?: () => void }>) {
+  const [oldPwd, setOldPwd] = React.useState('');
+  const [newPwd, setNewPwd] = React.useState('');
+  const [confirmPwd, setConfirmPwd] = React.useState('');
+  const [pwdMsg, setPwdMsg] = React.useState<{ type: 'ok' | 'err'; text: string } | null>(null);
+  const [pwdSaving, setPwdSaving] = React.useState(false);
+  const [deleteConfirm, setDeleteConfirm] = React.useState(false);
+  const [deleting, setDeleting] = React.useState(false);
+
+  const handlePwdChange = async () => {
+    if (newPwd !== confirmPwd) { setPwdMsg({ type: 'err', text: 'Les mots de passe ne correspondent pas' }); return; }
+    if (newPwd.length < 8) { setPwdMsg({ type: 'err', text: 'Mot de passe trop court (8 caractères min)' }); return; }
+    setPwdSaving(true); setPwdMsg(null);
+    try {
+      await changePassword(oldPwd, newPwd);
+      setPwdMsg({ type: 'ok', text: 'Mot de passe modifié ✅' });
+      setOldPwd(''); setNewPwd(''); setConfirmPwd('');
+    } catch {
+      setPwdMsg({ type: 'err', text: 'Ancien mot de passe incorrect' });
+    } finally { setPwdSaving(false); }
+  };
+
+  const handleDelete = async () => {
+    setDeleting(true);
+    try {
+      await deleteAccount();
+      onAccountDeleted?.();
+    } catch {
+      setDeleting(false); setDeleteConfirm(false);
+    }
+  };
+
   return (
-    <Card>
-      <div style={{ padding: 16, borderBottom: `1px solid ${LBC.gray100}`, fontWeight: 700 }}>Paramètres</div>
-      <div style={{ padding: 16, color: LBC.gray700 }}>
-        <p style={{ marginTop: 0 }}>Les paramètres avancés (notifications, confidentialité) peuvent être branchés ici.</p>
-        <Link href="/auth/login" style={{ color: LBC.orange, fontWeight: 700 }}>Gérer la session</Link>
-      </div>
-    </Card>
+    <div style={{ display: 'grid', gap: 16 }}>
+      <Card>
+        <div style={{ padding: 16, borderBottom: `1px solid ${LBC.gray100}`, fontWeight: 700 }}>🔐 Changer le mot de passe</div>
+        <div style={{ padding: 16, display: 'grid', gap: 12 }}>
+          {pwdMsg && <div style={{ padding: '8px 12px', borderRadius: 6, background: pwdMsg.type === 'ok' ? LBC.greenLight : LBC.redLight, color: pwdMsg.type === 'ok' ? LBC.green : LBC.red, fontWeight: 600 }}>{pwdMsg.text}</div>}
+          {[['Ancien mot de passe', oldPwd, setOldPwd], ['Nouveau mot de passe', newPwd, setNewPwd], ['Confirmer le mot de passe', confirmPwd, setConfirmPwd]].map(([label, val, setter]) => (
+            <label key={String(label)} style={{ display: 'flex', flexDirection: 'column', gap: 4, fontSize: 13 }}>
+              <span style={{ color: LBC.gray500 }}>{String(label)}</span>
+              <input type="password" value={String(val)} onChange={e => (setter as React.Dispatch<React.SetStateAction<string>>)(e.target.value)} style={{ border: `1px solid ${LBC.gray200}`, borderRadius: 6, padding: '8px 10px', fontSize: 14 }} />
+            </label>
+          ))}
+          <button onClick={handlePwdChange} disabled={pwdSaving || !oldPwd || !newPwd} style={{ background: LBC.orange, color: LBC.white, border: 'none', borderRadius: 7, padding: '10px 18px', fontWeight: 700, cursor: 'pointer', opacity: pwdSaving ? 0.7 : 1 }}>
+            {pwdSaving ? 'Modification…' : 'Modifier le mot de passe'}
+          </button>
+        </div>
+      </Card>
+
+      <Card>
+        <div style={{ padding: 16, borderBottom: `1px solid ${LBC.gray100}`, fontWeight: 700, color: LBC.red }}>⚠️ Zone dangereuse</div>
+        <div style={{ padding: 16 }}>
+          {!deleteConfirm ? (
+            <button onClick={() => setDeleteConfirm(true)} style={{ border: `1px solid ${LBC.red}`, background: LBC.redLight, color: LBC.red, padding: '10px 16px', borderRadius: 7, fontWeight: 700, cursor: 'pointer' }}>
+              Supprimer mon compte
+            </button>
+          ) : (
+            <div style={{ background: LBC.redLight, border: `1px solid ${LBC.red}`, borderRadius: 8, padding: 16 }}>
+              <p style={{ margin: '0 0 12px', fontWeight: 700, color: LBC.red }}>⚠️ Cette action est irréversible. Toutes vos données seront supprimées.</p>
+              <div style={{ display: 'flex', gap: 10 }}>
+                <button onClick={handleDelete} disabled={deleting} style={{ background: LBC.red, color: LBC.white, border: 'none', borderRadius: 7, padding: '10px 16px', fontWeight: 700, cursor: 'pointer' }}>
+                  {deleting ? 'Suppression…' : 'Confirmer la suppression'}
+                </button>
+                <button onClick={() => setDeleteConfirm(false)} style={{ border: `1px solid ${LBC.gray200}`, background: LBC.white, borderRadius: 7, padding: '10px 16px', cursor: 'pointer', fontWeight: 600 }}>Annuler</button>
+              </div>
+            </div>
+          )}
+        </div>
+      </Card>
+    </div>
   );
 }
 

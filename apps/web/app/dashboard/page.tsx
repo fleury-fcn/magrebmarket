@@ -138,8 +138,8 @@ function DashboardPage() {
       {!loading && tab === 'messages' && <MessagesTab conversations={conversations} user={user} />}
       {!loading && tab === 'favorites' && <FavoritesTab favorites={favorites} onRemove={removeFavorite} />}
       {!loading && tab === 'alerts' && <AlertsTab alerts={alerts} onDelete={deleteAlert} onToggle={toggleAlert} />}
-      {!loading && tab === 'profile' && <ProfileTab user={user} />}
-      {!loading && tab === 'settings' && <SettingsTab />}
+      {!loading && tab === 'profile' && <ProfileTab user={user} onUpdate={_partial => { setTab('overview'); }} />}
+      {!loading && tab === 'settings' && <SettingsTab onAccountDeleted={() => { globalThis.window.location.href = '/'; }} />}
     </section>
   );
 }
