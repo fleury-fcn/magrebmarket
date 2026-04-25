@@ -8,7 +8,9 @@ import os
 import signal
 import subprocess
 import sys
+import threading
 import time
+import webbrowser
 from collections.abc import Callable
 from pathlib import Path
 from threading import Event
@@ -54,6 +56,11 @@ def parse_args() -> argparse.Namespace:
         "--force-free-ports",
         action="store_true",
         help="Libère les ports frontend/backend s'ils sont déjà occupés avant le démarrage.",
+    )
+    parser.add_argument(
+        "--no-browser",
+        action="store_true",
+        help="Ne pas ouvrir le navigateur automatiquement au démarrage",
     )
     return parser.parse_args()
 
@@ -227,6 +234,33 @@ def build_commands(args: argparse.Namespace) -> list[tuple[str, list[str], Path]
     return commands
 
 
+def open_browser_when_ready(url: str, timeout: int = 30) -> None:
+    """Attend que le serveur réponde sur l'URL puis ouvre le navigateur."""
+    import http.client
+    import urllib.parse
+
+    parsed = urllib.parse.urlparse(url)
+    host = parsed.hostname or "localhost"
+    port = parsed.port or 80
+    path = parsed.path or "/"
+
+    deadline = time.time() + timeout
+    while time.time() < deadline:
+        try:
+            conn = http.client.HTTPConnection(host, port, timeout=1)
+            conn.request("GET", path)
+            conn.getresponse()
+            conn.close()
+            print(f"🌐 Ouverture du navigateur → {url}")
+            webbrowser.open(url)
+            return
+        except OSError:
+            time.sleep(0.5)
+
+    print(f"⚠️  Le serveur n'a pas répondu dans les {timeout}s — ouverture du navigateur quand même.")
+    webbrowser.open(url)
+
+
 def launch_processes(
     commands: list[tuple[str, list[str], Path]], env: dict[str, str]
 ) -> list[tuple[str, subprocess.Popen[bytes]]]:
@@ -276,6 +310,17 @@ def main() -> int:
     stop_event = Event()
     env = os.environ.copy()
     processes = launch_processes(commands, env)
+
+    # Ouvrir le navigateur automatiquement sauf si --no-browser
+    run_frontend = not args.backend or args.frontend
+    if not args.no_browser and run_frontend:
+        frontend_url = f"http://localhost:{args.frontend_port}"
+        browser_thread = threading.Thread(
+            target=open_browser_when_ready,
+            args=(frontend_url,),
+            daemon=True,
+        )
+        browser_thread.start()
 
     def terminate_processes() -> None:
         terminate_running_processes(processes)
