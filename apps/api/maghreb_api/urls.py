@@ -16,10 +16,14 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import include, path
+from django.conf import settings
+from django.views.static import serve
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('listings.urls')),
     path('api/', include('accounts.urls')),
     path('api/', include('messaging.urls')),
+    # Serve media files in development (also works without DEBUG=True)
+    path('media/<path:path>', serve, {'document_root': settings.MEDIA_ROOT}),
 ]
