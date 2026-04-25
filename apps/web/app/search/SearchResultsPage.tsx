@@ -20,6 +20,9 @@ import { fetchSearchListings, initialFilters, SORT_OPTIONS } from './services';
 import type { Ad, SearchFilters, SortOption } from './types';
 import { createSearchAlert } from '../dashboard/services';
 import { useAuth } from '../auth/hooks/useAuth';
+import dynamic from 'next/dynamic';
+
+const SearchMap = dynamic(() => import('../components/SearchMap'), { ssr: false, loading: () => <div style={{ height: 480, background: '#f9fafb', borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#aaa', fontSize: 14 }}>🗺️ Chargement de la carte…</div> });
 
 const renderResultContent = ({
 	loading,
@@ -35,7 +38,7 @@ const renderResultContent = ({
 	loading: boolean;
 	error: string | null;
 	showEmpty: boolean;
-	viewMode: 'grid' | 'list';
+	viewMode: 'grid' | 'list' | 'map';
 	ads: Ad[];
 	isMobile: boolean;
 	resetFilters: () => void;
@@ -91,7 +94,7 @@ const SearchResultsPage = () => {
 	const [filters, setFilters] = useState<SearchFilters>(initialFilters);
 	const [alertSaved, setAlertSaved] = useState(false);
 	const [savingAlert, setSavingAlert] = useState(false);
-	const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+	const [viewMode, setViewMode] = useState<'grid' | 'list' | 'map'>('grid');
 	const [ads, setAds] = useState<Ad[]>([]);
 	const [totalResults, setTotalResults] = useState(0);
 	const [totalPages, setTotalPages] = useState(1);
@@ -366,7 +369,7 @@ const SearchResultsPage = () => {
 									))}
 								</select>
 								<div style={{ display: 'flex', border: `1px solid ${LBC.gray200}`, borderRadius: 6, overflow: 'hidden', flexShrink: 0 }}>
-									{(['grid', 'list'] as const).map(mode => (
+									{(['grid', 'list', 'map'] as const).map(mode => (
 										<button
 											key={mode}
 											type="button"
@@ -381,7 +384,7 @@ const SearchResultsPage = () => {
 												transition: 'background 0.15s',
 											}}
 										>
-											{mode === 'grid' ? '⊞' : '☰'}
+											{mode === 'grid' ? '⊞' : mode === 'list' ? '☰' : '🗺️'}
 										</button>
 									))}
 								</div>
@@ -390,7 +393,7 @@ const SearchResultsPage = () => {
 
 						<ActiveFilters filters={filters} onChange={updateFilters} />
 
-						{resultContent}
+						{viewMode === 'map' ? <SearchMap ads={ads} height={520} /> : resultContent}
 
 						{!loading && !error && <Pagination current={filters.page} total={totalPages} onChange={page => updateFilters({ page })} />}
 					</div>

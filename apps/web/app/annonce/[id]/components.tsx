@@ -1,10 +1,13 @@
 import React, { type Dispatch } from 'react';
+import dynamic from 'next/dynamic';
 
 import { LBC } from '../../search/data';
 import { ImageGallery } from '../../annonce/components/ImageGallery';
 import { SellerCard } from '../../annonce/components/SellerCard';
 import { ReportModal, SecurityTips, SimilarAnnonces } from '../../annonce/components/Widgets';
 import type { AnnonceDetail, SimilarAnnonce } from '../../annonce/types';
+
+const MapView = dynamic(() => import('../../components/MapView'), { ssr: false, loading: () => <div style={{ height: 260, background: '#f9fafb', borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#aaa' }}>🗺️ Chargement…</div> });
 
 export function AnnonceLoadingView() {
   return <div style={{ padding: 20 }}>Chargement…</div>;
@@ -77,8 +80,11 @@ export function AnnonceDetailView({
             </div>
 
             <div style={{ marginTop: 18 }}>
-              <h3 style={{ margin: '0 0 8px' }}>Localisation</h3>
-              <div>{annonce.city}{annonce.postalCode ? ` (${annonce.postalCode})` : ''}</div>
+              <h3 style={{ margin: '0 0 10px' }}>Localisation</h3>
+              <div style={{ fontSize: 13, color: '#666', marginBottom: 10 }}>
+                📍 {annonce.city}{annonce.postalCode ? ` (${annonce.postalCode})` : ''}
+              </div>
+              <MapView city={annonce.city} label={annonce.title} height={260} />
             </div>
           </div>
 
