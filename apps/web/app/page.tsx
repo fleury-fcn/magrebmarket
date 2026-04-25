@@ -113,6 +113,41 @@ const POPULAR_CITIES = [
   { name: "Nouakchott",  flag: "🇲🇷", country: "MR" },
 ];
 
+// Mapping entre les labels de la nav et les slugs API des catégories
+const NAV_LABEL_TO_SLUG: Record<string, string> = {
+  // FR
+  "Immobilier": "immobilier",
+  "Véhicules": "vehicules",
+  "Offres d'emploi": "emploi",
+  "Mode": "market",
+  "Maison & Jardin": "services",
+  "Multimédia": "market",
+  "Sports & Loisirs": "market",
+  "Enfants": "market",
+  "Animaux": "market",
+  "Voyages": "services",
+  "Services": "services",
+  "Livres": "market",
+  // EN
+  "Real Estate": "immobilier",
+  "Vehicles": "vehicules",
+  "Job Offers": "emploi",
+  "Fashion": "market",
+  "Home & Garden": "services",
+  "Multimedia": "market",
+  "Sports & Leisure": "market",
+  "Children": "market",
+  "Animals": "market",
+  "Travel": "services",
+  "Books": "market",
+  // AR
+  "عقارات": "immobilier",
+  "سيارات": "vehicules",
+  "وظائف": "emploi",
+  "موضة": "market",
+  "خدمات": "services",
+};
+
 const resolveCoverImage = (ad: LiveListing): string | null => {
   const raw = (Array.isArray(ad.photos) && ad.photos[0]) || ad.cover_image;
   if (!raw) return null;
@@ -447,17 +482,31 @@ const Home = () => {
 
       <nav className="categories-nav">
         <div className="categories-nav-inner">
-          {navCategories.map((item) => (
-            <button
-              type="button"
-              key={item.label}
-              className={`cat-nav-item ${activeNav === item.label ? "active" : ""}`}
-              onClick={() => setActiveNav(item.label)}
-            >
-              <span aria-hidden>{item.icon}</span>
-              {item.label}
-            </button>
-          ))}
+          {navCategories.map((item) => {
+            // Chercher d'abord dans les catégories live chargées depuis l'API
+            const liveMatch = liveCategories.find(
+              cat => cat.name.toLowerCase() === item.label.toLowerCase()
+            );
+            const slug = liveMatch?.slug ?? NAV_LABEL_TO_SLUG[item.label];
+            return (
+              <button
+                type="button"
+                key={item.label}
+                className={`cat-nav-item ${activeNav === item.label ? "active" : ""}`}
+                onClick={() => {
+                  setActiveNav(item.label);
+                  if (slug) {
+                    router.push(`/search?category=${encodeURIComponent(slug)}`);
+                  } else {
+                    router.push(`/search?q=${encodeURIComponent(item.label)}`);
+                  }
+                }}
+              >
+                <span aria-hidden>{item.icon}</span>
+                {item.label}
+              </button>
+            );
+          })}
         </div>
       </nav>
 
@@ -564,23 +613,30 @@ const Home = () => {
         </div>
 
         <section className="how-it-works">
-          <h2 className="section-title how-title">Comment ca marche ?</h2>
+          <h2 className="section-title how-title">Comment ça marche ?</h2>
           <div className="steps-grid">
-            <div className="step-card">
+            <button type="button" className="step-card step-card-btn" onClick={handleDepositClick}>
               <div className="step-icon">📸</div>
               <h3>Déposez votre annonce</h3>
               <p>Gratuit et en moins de 2 minutes. Photos, description, prix : tout y est.</p>
-            </div>
-            <div className="step-card">
+              <span className="step-cta">Déposer maintenant →</span>
+            </button>
+            <button
+              type="button"
+              className="step-card step-card-btn"
+              onClick={() => router.push(isAuthenticated ? "/messages" : "/auth/login?next=/messages")}
+            >
               <div className="step-icon">💬</div>
               <h3>Échangez avec les acheteurs</h3>
               <p>Recevez des messages directement et négociez en toute confiance.</p>
-            </div>
-            <div className="step-card">
+              <span className="step-cta">Voir mes messages →</span>
+            </button>
+            <button type="button" className="step-card step-card-btn" onClick={() => router.push("/search")}>
               <div className="step-icon">🤝</div>
               <h3>Concluez la vente</h3>
               <p>Rencontrez-vous ou faites livrer. C&rsquo;est aussi simple que ça.</p>
-            </div>
+              <span className="step-cta">Parcourir les annonces →</span>
+            </button>
           </div>
         </section>
 
@@ -1393,6 +1449,30 @@ const Home = () => {
         .legacy-home .step-card {
           text-align: center;
           padding: 16px;
+        }
+
+        .legacy-home .step-card-btn {
+          background: #fff;
+          border: 1.5px solid var(--gray-border);
+          border-radius: 14px;
+          cursor: pointer;
+          font: inherit;
+          transition: border-color 0.18s, box-shadow 0.18s, transform 0.12s;
+          width: 100%;
+        }
+
+        .legacy-home .step-card-btn:hover {
+          border-color: var(--orange);
+          box-shadow: 0 4px 16px rgba(229,97,30,0.13);
+          transform: translateY(-2px);
+        }
+
+        .legacy-home .step-cta {
+          display: inline-block;
+          margin-top: 10px;
+          font-size: 12px;
+          font-weight: 700;
+          color: var(--orange);
         }
 
         .legacy-home .step-icon {
