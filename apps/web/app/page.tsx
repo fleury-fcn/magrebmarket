@@ -183,6 +183,7 @@ const Home = () => {
   const [liveFeaturedAds, setLiveFeaturedAds] = useState<LiveListing[]>([]);
   const [totalListingsCount, setTotalListingsCount] = useState<number | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [unreadCount, setUnreadCount] = useState(0);
   const activeCountry = COUNTRY_OPTIONS.find(country => country.value === locationCountry) ?? fallbackCountry;
 
   const formatCategoryCount = (count: number) => {
@@ -194,6 +195,21 @@ const Home = () => {
   useEffect(() => {
     setActiveNav(navCategories[0]?.label ?? "");
   }, [language, navCategories]);
+
+  useEffect(() => {
+    if (!isAuthenticated) { setUnreadCount(0); return; }
+    const fetchCount = () => {
+      apiFetch<{ results?: { is_read?: boolean }[] }>('messages/conversations/')
+        .then(data => {
+          const count = (data.results ?? []).filter(c => c.is_read === false).length;
+          setUnreadCount(count);
+        })
+        .catch(() => { /* silently ignore */ });
+    };
+    fetchCount();
+    const timer = setInterval(fetchCount, 30_000);
+    return () => clearInterval(timer);
+  }, [isAuthenticated]);
 
   useEffect(() => {
     const matchedCountry = ensureCountryCode(user?.country ?? null);
@@ -380,6 +396,26 @@ const Home = () => {
                 </span>
                 <button type="button" className="topbar-link-btn" onClick={goToDashboard}>
                   {topbar.mySpace}
+                </button>
+                <button
+                  type="button"
+                  className="topbar-link-btn"
+                  onClick={() => router.push('/messages')}
+                  aria-label="Notifications"
+                  style={{ position: 'relative', display: 'inline-flex', alignItems: 'center' }}
+                >
+                  🔔
+                  {unreadCount > 0 && (
+                    <span style={{
+                      position: 'absolute', top: -6, right: -8,
+                      background: '#e30613', color: '#fff',
+                      borderRadius: '50%', fontSize: 10, fontWeight: 700,
+                      minWidth: 16, height: 16, display: 'flex',
+                      alignItems: 'center', justifyContent: 'center', padding: '0 3px'
+                    }}>
+                      {unreadCount > 99 ? '99+' : unreadCount}
+                    </span>
+                  )}
                 </button>
                 <button type="button" className="topbar-link-btn" onClick={handleLogout}>
                   {topbar.logout}
