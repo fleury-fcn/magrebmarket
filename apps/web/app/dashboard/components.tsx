@@ -4,6 +4,13 @@ import type { AuthUser } from '../auth/types';
 import type { ConversationItem, DashboardStats, DashboardTab, FavoriteItem, ListingItem } from './types';
 import { formatPrice, timeAgo } from './services';
 
+const STATUS_LABELS: Record<string, string> = {
+  published: '✅ Publiée',
+  pending: '⏳ En attente',
+  draft: '📝 Brouillon',
+  archived: '📦 Archivée',
+};
+
 export const LBC = {
   orange: '#E85C0D',
   orangeLight: '#FFF4EE',
@@ -125,12 +132,15 @@ export function OverviewTab({ stats }: Readonly<{ stats: DashboardStats }>) {
   );
 }
 
-export function AdsTab({ listings, onPublish, isMobile = false }: Readonly<{ listings: ListingItem[]; onPublish: Dispatch<string>; isMobile?: boolean }>) {
+export function AdsTab({ listings, onPublish, onDelete, isMobile = false }: Readonly<{ listings: ListingItem[]; onPublish: Dispatch<string>; onDelete: Dispatch<string>; isMobile?: boolean }>) {
   return (
     <Card>
       <div style={{ padding: 16, borderBottom: `1px solid ${LBC.gray100}`, fontWeight: 700 }}>Mes annonces ({listings.length})</div>
       {listings.length === 0 ? (
-        <div style={{ padding: 16, color: LBC.gray500 }}>Aucune annonce pour le moment.</div>
+        <div style={{ padding: 16, color: LBC.gray500 }}>
+          Aucune annonce pour le moment.{' '}
+          <Link href="/listings/new" style={{ color: LBC.orange, fontWeight: 700 }}>Déposer une annonce →</Link>
+        </div>
       ) : (
         listings.map(item => (
           <div key={item.id} style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr auto', gap: 12, alignItems: 'center', padding: 14, borderBottom: `1px solid ${LBC.gray100}` }}>
@@ -141,19 +151,32 @@ export function AdsTab({ listings, onPublish, isMobile = false }: Readonly<{ lis
               </div>
               <div style={{ marginTop: 6 }}>
                 <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: item.status === 'published' ? LBC.greenLight : LBC.orangeLight, color: item.status === 'published' ? LBC.green : LBC.orange, fontWeight: 700 }}>
-                  {item.status}
+                  {STATUS_LABELS[item.status] ?? item.status}
                 </span>
               </div>
             </div>
-            <div style={{ display: 'flex', gap: 8 }}>
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
               {(item.status === 'pending' || item.status === 'draft') && (
-                <button onClick={() => onPublish(item.slug)} style={{ border: 'none', background: LBC.orange, color: LBC.white, padding: '8px 10px', borderRadius: 6, fontWeight: 700, cursor: 'pointer' }}>
-                  Publier
+                <button onClick={() => onPublish(item.slug)} style={{ border: 'none', background: LBC.orange, color: LBC.white, padding: '8px 10px', borderRadius: 6, fontWeight: 700, cursor: 'pointer', fontSize: 13 }}>
+                  ▶ Publier
                 </button>
               )}
-              <Link href={`/listings/${item.slug}`} style={{ border: `1px solid ${LBC.gray200}`, background: LBC.white, color: LBC.gray700, padding: '8px 10px', borderRadius: 6, fontWeight: 700, textDecoration: 'none' }}>
-                Voir
+              <Link href={`/listings/new?edit=${item.slug}`} style={{ border: `1px solid ${LBC.gray200}`, background: LBC.white, color: LBC.gray700, padding: '8px 10px', borderRadius: 6, fontWeight: 700, textDecoration: 'none', fontSize: 13 }}>
+                ✏️ Éditer
               </Link>
+              <Link href={`/listings/${item.slug}`} style={{ border: `1px solid ${LBC.gray200}`, background: LBC.white, color: LBC.gray700, padding: '8px 10px', borderRadius: 6, fontWeight: 700, textDecoration: 'none', fontSize: 13 }}>
+                👁 Voir
+              </Link>
+              <button
+                onClick={() => {
+                  if (globalThis.window?.confirm(`Supprimer "${item.title}" ? Cette action est irréversible.`)) {
+                    onDelete(item.slug);
+                  }
+                }}
+                style={{ border: `1px solid ${LBC.red}`, background: LBC.redLight, color: LBC.red, padding: '8px 10px', borderRadius: 6, fontWeight: 700, cursor: 'pointer', fontSize: 13 }}
+              >
+                🗑 Supprimer
+              </button>
             </div>
           </div>
         ))

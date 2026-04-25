@@ -15,7 +15,7 @@ import {
   SettingsTab,
   TabsBar,
 } from './components';
-import { loadDashboardData, publishListingBySlug, removeFavoriteById } from './services';
+import { loadDashboardData, publishListingBySlug, deleteListingBySlug, removeFavoriteById } from './services';
 import type { ConversationItem, DashboardTab, FavoriteItem, ListingItem } from './types';
 
 function DashboardPage() {
@@ -84,6 +84,15 @@ function DashboardPage() {
     }
   };
 
+  const deleteListing = async (slug: string) => {
+    try {
+      await deleteListingBySlug(slug);
+      setListings(prev => prev.filter(item => item.slug !== slug));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Suppression impossible');
+    }
+  };
+
   const removeFavorite = async (favoriteId: number) => {
     try {
       await removeFavoriteById(favoriteId);
@@ -104,7 +113,7 @@ function DashboardPage() {
       <LoadingError loading={loading} error={error} />
 
       {!loading && tab === 'overview' && <OverviewTab stats={stats} />}
-      {!loading && tab === 'ads' && <AdsTab listings={listings} onPublish={publishListing} isMobile={isMobile} />}
+      {!loading && tab === 'ads' && <AdsTab listings={listings} onPublish={publishListing} onDelete={deleteListing} isMobile={isMobile} />}
       {!loading && tab === 'messages' && <MessagesTab conversations={conversations} user={user} />}
       {!loading && tab === 'favorites' && <FavoritesTab favorites={favorites} onRemove={removeFavorite} />}
       {!loading && tab === 'profile' && <ProfileTab user={user} />}

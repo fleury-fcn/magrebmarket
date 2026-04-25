@@ -24,8 +24,23 @@ export const publishListingBySlug = async (slug: string) => {
   await postJson(`listings/${slug}/publish/`, {});
 };
 
+export const deleteListingBySlug = async (slug: string) => {
+  await apiFetch(`listings/${slug}/`, { method: 'DELETE' });
+};
+
 export const removeFavoriteById = async (favoriteId: number) => {
   await apiFetch(`favorites/${favoriteId}/`, { method: 'DELETE' });
+};
+
+export const fetchUnreadCount = async (): Promise<number> => {
+  try {
+    const data = await apiFetch<PaginatedResponse<ConversationItem>>('messages/conversations/');
+    const convs = Array.isArray(data) ? data : (data.results ?? []);
+    // On compte les conversations avec activité récente (heuristique côté client)
+    return convs.filter((c: ConversationItem) => c.is_open).length;
+  } catch {
+    return 0;
+  }
 };
 
 export const formatPrice = (price: number, currency: string) =>
