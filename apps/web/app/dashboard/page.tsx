@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useAuth } from '../auth/hooks/useAuth';
 import {
   AdsTab,
+  AlertsTab,
   DashboardHeader,
   FavoritesTab,
   LBC,
@@ -15,7 +16,7 @@ import {
   SettingsTab,
   TabsBar,
 } from './components';
-import { loadDashboardData, publishListingBySlug, deleteListingBySlug, removeFavoriteById } from './services';
+import { loadDashboardData, publishListingBySlug, deleteListingBySlug, removeFavoriteById, fetchSearchAlerts, deleteSearchAlert, toggleSearchAlert, type SearchAlert } from './services';
 import type { ConversationItem, DashboardTab, FavoriteItem, ListingItem } from './types';
 
 function DashboardPage() {
@@ -27,6 +28,7 @@ function DashboardPage() {
   const [listings, setListings] = useState<ListingItem[]>([]);
   const [favorites, setFavorites] = useState<FavoriteItem[]>([]);
   const [conversations, setConversations] = useState<ConversationItem[]>([]);
+  const [alerts, setAlerts] = useState<SearchAlert[]>([]);
   const isMobile = viewportWidth < 768;
 
   useEffect(() => {
@@ -45,10 +47,11 @@ function DashboardPage() {
     setLoading(true);
     setError(null);
     try {
-      const data = await loadDashboardData();
+      const [data, alertsData] = await Promise.all([loadDashboardData(), fetchSearchAlerts()]);
       setListings(data.listings);
       setFavorites(data.favorites);
       setConversations(data.conversations);
+      setAlerts(alertsData);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Impossible de charger le tableau de bord.');
     } finally {
@@ -93,6 +96,24 @@ function DashboardPage() {
     }
   };
 
+  const deleteAlert = async (id: number) => {
+    try {
+      await deleteSearchAlert(id);
+      setAlerts(prev => prev.filter(a => a.id !== id));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Suppression impossible');
+    }
+  };
+
+  const toggleAlert = async (id: number, active: boolean) => {
+    try {
+      const updated = await toggleSearchAlert(id, active);
+      setAlerts(prev => prev.map(a => a.id === id ? updated : a));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Mise à jour impossible');
+    }
+  };
+
   const removeFavorite = async (favoriteId: number) => {
     try {
       await removeFavoriteById(favoriteId);
@@ -116,6 +137,7 @@ function DashboardPage() {
       {!loading && tab === 'ads' && <AdsTab listings={listings} onPublish={publishListing} onDelete={deleteListing} isMobile={isMobile} />}
       {!loading && tab === 'messages' && <MessagesTab conversations={conversations} user={user} />}
       {!loading && tab === 'favorites' && <FavoritesTab favorites={favorites} onRemove={removeFavorite} />}
+      {!loading && tab === 'alerts' && <AlertsTab alerts={alerts} onDelete={deleteAlert} onToggle={toggleAlert} />}
       {!loading && tab === 'profile' && <ProfileTab user={user} />}
       {!loading && tab === 'settings' && <SettingsTab />}
     </section>

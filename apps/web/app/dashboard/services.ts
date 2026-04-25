@@ -32,6 +32,41 @@ export const removeFavoriteById = async (favoriteId: number) => {
   await apiFetch(`favorites/${favoriteId}/`, { method: 'DELETE' });
 };
 
+export type SearchAlert = {
+  id: number;
+  label: string;
+  query: string;
+  category: string;
+  country: string;
+  min_price: string | null;
+  max_price: string | null;
+  is_active: boolean;
+  created_at: string;
+};
+
+export const fetchSearchAlerts = async (): Promise<SearchAlert[]> => {
+  const data = await apiFetch<PaginatedResponse<SearchAlert> | SearchAlert[]>('search-alerts/');
+  return Array.isArray(data) ? data : (data.results ?? []);
+};
+
+export const deleteSearchAlert = async (id: number) => {
+  await apiFetch(`search-alerts/${id}/`, { method: 'DELETE' });
+};
+
+export const toggleSearchAlert = async (id: number, isActive: boolean): Promise<SearchAlert> => {
+  return apiFetch<SearchAlert>(`search-alerts/${id}/`, {
+    method: 'PATCH',
+    body: JSON.stringify({ is_active: isActive }),
+  });
+};
+
+export const createSearchAlert = async (payload: Omit<SearchAlert, 'id' | 'created_at'>): Promise<SearchAlert> => {
+  return apiFetch<SearchAlert>('search-alerts/', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
+};
+
 export const fetchUnreadCount = async (): Promise<number> => {
   try {
     const data = await apiFetch<PaginatedResponse<ConversationItem>>('messages/conversations/');

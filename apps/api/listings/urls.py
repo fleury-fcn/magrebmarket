@@ -16,6 +16,7 @@ from .views import (
     ModerationQueueView,
     ModerationStatsView,
     ReviewViewSet,
+    SearchAlertViewSet,
 )
 
 router = DefaultRouter()
@@ -23,6 +24,7 @@ router.register('listings', ListingViewSet, basename='listing')
 router.register('favorites', FavoriteViewSet, basename='favorite')
 router.register('reports', ListingReportViewSet, basename='listing-report')
 router.register('reviews', ReviewViewSet, basename='review')
+router.register('search-alerts', SearchAlertViewSet, basename='search-alert')
 
 urlpatterns = [
     path('listings/search/', ListingSearchView.as_view(), name='listing-search'),

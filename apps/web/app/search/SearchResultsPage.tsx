@@ -18,6 +18,8 @@ import {
 } from './components';
 import { fetchSearchListings, initialFilters, SORT_OPTIONS } from './services';
 import type { Ad, SearchFilters, SortOption } from './types';
+import { createSearchAlert } from '../dashboard/services';
+import { useAuth } from '../auth/hooks/useAuth';
 
 const renderResultContent = ({
 	loading,
@@ -85,7 +87,10 @@ const renderResultContent = ({
 
 const SearchResultsPage = () => {
 	const searchParams = useSearchParams();
+	const { user } = useAuth();
 	const [filters, setFilters] = useState<SearchFilters>(initialFilters);
+	const [alertSaved, setAlertSaved] = useState(false);
+	const [savingAlert, setSavingAlert] = useState(false);
 	const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 	const [ads, setAds] = useState<Ad[]>([]);
 	const [totalResults, setTotalResults] = useState(0);
@@ -132,6 +137,28 @@ const SearchResultsPage = () => {
 	const resetFilters = useCallback(() => {
 		setFilters({ ...initialFilters });
 	}, []);
+
+	const handleSaveAlert = async () => {
+		if (!user) { globalThis.location.href = '/auth/login?next=/search'; return; }
+		setSavingAlert(true);
+		try {
+			const label = [
+				filters.query ? `"${filters.query}"` : '',
+				filters.category || '',
+				filters.country || '',
+			].filter(Boolean).join(' · ') || 'Alerte de recherche';
+			await createSearchAlert({
+				label,
+				query: filters.query ?? '',
+				category: filters.category ?? '',
+				country: filters.country ?? '',
+				min_price: filters.priceMin ? String(filters.priceMin) : null,
+				max_price: filters.priceMax ? String(filters.priceMax) : null,
+				is_active: true,
+			});
+			setAlertSaved(true);
+		} catch { /* ignore */ } finally { setSavingAlert(false); }
+	};
 
 	const toggleFavorite = useCallback((id: string) => {
 		setAds(prev => prev.map(ad => (ad.id === id ? { ...ad, isFavorite: !ad.isFavorite } : ad)));
@@ -297,6 +324,23 @@ const SearchResultsPage = () => {
 								{filters.query && (
 									<span style={{ color: LBC.gray600, fontSize: 14, marginLeft: 6 }}>pour « {filters.query} »</span>
 								)}
+							</div>
+							<div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+								<button
+									type="button"
+									onClick={() => { void handleSaveAlert(); }}
+									disabled={savingAlert || alertSaved}
+									style={{
+										padding: '6px 14px', fontSize: 13, fontWeight: 600,
+										border: `1px solid ${alertSaved ? '#16a34a' : LBC.gray200}`,
+										bordarRadius: 6, borderRadius: 6,
+										background: alertSaved ? '#f0fdf4' : LBC.white,
+										color: alertSaved ? '#16a34a' : LBC.gray700,
+										cursor: alertSaved ? 'default' : 'pointer',
+									}}
+								>
+									{alertSaved ? '✅ Alerte sauvegardée' : savingAlert ? '...' : '🔔 Sauvegarder l\'alerte'}
+								</button>
 							</div>
 							<div style={{ display: 'flex', alignItems: 'center', gap: 10, width: isMobile ? '100%' : 'auto' }}>
 								<select

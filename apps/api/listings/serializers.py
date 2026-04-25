@@ -7,7 +7,7 @@ from rest_framework import serializers
 
 from accounts.serializers import PublicUserSerializer
 from .constants import CATEGORY_FIELD_SCHEMAS, COUNTRY_CITIES, COUNTRY_REGIONS
-from .models import Favorite, Listing, ListingImage, ListingReport, Review
+from .models import Favorite, Listing, ListingImage, ListingReport, Review, SearchAlert
 
 ABSOLUTE_URL_PREFIXES = ('http://', 'https://')
 
@@ -414,3 +414,10 @@ class CoverImageUploadSerializer(serializers.Serializer):
         if not content_type.startswith('image/'):
             raise serializers.ValidationError("Le fichier doit être une image (JPEG, PNG, GIF...).")
         return value
+
+
+class SearchAlertSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SearchAlert
+        fields = ["id", "label", "query", "category", "country", "min_price", "max_price", "is_active", "created_at"]
+        read_only_fields = ["id", "created_at"]

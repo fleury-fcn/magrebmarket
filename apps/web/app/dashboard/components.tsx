@@ -2,7 +2,7 @@ import Link from 'next/link';
 import type { Dispatch, ReactNode } from 'react';
 import type { AuthUser } from '../auth/types';
 import type { ConversationItem, DashboardStats, DashboardTab, FavoriteItem, ListingItem } from './types';
-import { formatPrice, timeAgo } from './services';
+import { formatPrice, timeAgo, type SearchAlert } from './services';
 
 const STATUS_LABELS: Record<string, string> = {
   published: '✅ Publiée',
@@ -35,6 +35,7 @@ export const DASHBOARD_TABS: Array<[DashboardTab, string]> = [
   ['ads', 'Mes annonces'],
   ['messages', 'Messages'],
   ['favorites', 'Mes favoris'],
+  ['alerts', '🔔 Alertes'],
   ['profile', 'Profil'],
   ['settings', 'Paramètres'],
 ];
@@ -258,6 +259,65 @@ export function SettingsTab() {
         <p style={{ marginTop: 0 }}>Les paramètres avancés (notifications, confidentialité) peuvent être branchés ici.</p>
         <Link href="/auth/login" style={{ color: LBC.orange, fontWeight: 700 }}>Gérer la session</Link>
       </div>
+    </Card>
+  );
+}
+
+export function AlertsTab({
+  alerts,
+  onDelete,
+  onToggle,
+}: Readonly<{
+  alerts: SearchAlert[];
+  onDelete: Dispatch<number>;
+  onToggle: (_id: number, _active: boolean) => void;
+}>) {
+  if (alerts.length === 0) {
+    return (
+      <Card>
+        <div style={{ padding: 32, textAlign: 'center', color: LBC.gray700 }}>
+          <div style={{ fontSize: 36, marginBottom: 12 }}>🔔</div>
+          <p style={{ margin: 0, fontWeight: 600 }}>Aucune alerte de recherche</p>
+          <p style={{ margin: '8px 0 0', fontSize: 13 }}>
+            Depuis la page de recherche, sauvegardez une recherche pour être notifié des nouvelles annonces.
+          </p>
+        </div>
+      </Card>
+    );
+  }
+  return (
+    <Card>
+      <div style={{ padding: '14px 16px', borderBottom: `1px solid ${LBC.gray100}`, fontWeight: 700 }}>
+        🔔 Mes alertes ({alerts.length})
+      </div>
+      {alerts.map(alert => (
+        <div key={alert.id} style={{ padding: '14px 16px', borderBottom: `1px solid ${LBC.gray100}`, display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontWeight: 600, fontSize: 14 }}>{alert.label}</div>
+            <div style={{ fontSize: 12, color: LBC.gray700, marginTop: 2 }}>
+              {alert.query ? `Recherche : "${alert.query}"` : ''}
+              {alert.category ? ` · ${alert.category}` : ''}
+              {alert.country ? ` · ${alert.country}` : ''}
+            </div>
+          </div>
+          <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, cursor: 'pointer' }}>
+            <input
+              type="checkbox"
+              checked={alert.is_active}
+              onChange={e => onToggle(alert.id, e.target.checked)}
+              style={{ cursor: 'pointer' }}
+            />{' '}
+            Active
+          </label>
+          <button
+            type="button"
+            onClick={() => { if (globalThis.confirm('Supprimer cette alerte ?')) onDelete(alert.id); }}
+            style={{ padding: '4px 10px', border: `1px solid ${LBC.gray200}`, borderRadius: 6, background: 'none', cursor: 'pointer', fontSize: 13, color: '#e30613' }}
+          >
+            🗑 Supprimer
+          </button>
+        </div>
+      ))}
     </Card>
   );
 }

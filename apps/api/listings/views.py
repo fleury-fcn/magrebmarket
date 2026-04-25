@@ -18,7 +18,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .constants import CATEGORY_FIELD_SCHEMAS, COUNTRY_CITIES, COUNTRY_REGIONS, LISTING_CATEGORIES
-from .models import Favorite, Listing, ListingReport, Review, generate_listing_slug
+from .models import Favorite, Listing, ListingReport, Review, SearchAlert, generate_listing_slug
 from .moderation import apply_auto_moderation, apply_promotion_rules
 from .permissions import IsOwnerOrReadOnly
 from .serializers import (
@@ -29,11 +29,10 @@ from .serializers import (
 	ListingSearchResultSerializer,
 	ListingSerializer,
 	ListingWriteSerializer,
-	ModerationBulkDecisionSerializer,
-	ReviewSerializer,
+        ModerationBulkDecisionSerializer,
+        ReviewSerializer,
+        SearchAlertSerializer,
 )
-
-
 FLAGGED_SCORE_THRESHOLD = 0.6
 
 
@@ -621,3 +620,21 @@ class ListingSearchView(ListAPIView):
 					values.extend(part.strip() for part in raw.split(','))
 					break
 		return [value for value in (item.strip() for item in values) if value]
+
+
+class SearchAlertViewSet(viewsets.ModelViewSet):
+    """
+    CRUD des alertes de recherche pour l'utilisateur authentifié.
+    GET    /api/search-alerts/         → liste
+    POST   /api/search-alerts/         → créer
+    PATCH  /api/search-alerts/<id>/    → activer/désactiver
+    DELETE /api/search-alerts/<id>/    → supprimer
+    """
+    serializer_class = SearchAlertSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return SearchAlert.objects.filter(user=self.request.user)
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)

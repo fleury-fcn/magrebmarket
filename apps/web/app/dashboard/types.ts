@@ -1,4 +1,4 @@
-export type DashboardTab = 'overview' | 'ads' | 'messages' | 'favorites' | 'profile' | 'settings';
+export type DashboardTab = 'overview' | 'ads' | 'messages' | 'favorites' | 'alerts' | 'profile' | 'settings';
 
 export type ListingItem = {
   id: number;
