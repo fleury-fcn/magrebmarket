@@ -775,10 +775,9 @@ const Home = () => {
           </div>
           <div className="footer-col">
             <h4>Légal</h4>
-            <Link href="/legal/terms">CGU</Link>
-            <Link href="/legal/privacy">Politique de confidentialité</Link>
+            <Link href="/legal/cgu">CGU</Link>
+            <Link href="/legal/confidentialite">Politique de confidentialité</Link>
             <Link href="/legal/cookies">Cookies</Link>
-            <Link href="/legal/accessibility">Accessibilité</Link>
           </div>
         </div>
         <div className="footer-bottom">
