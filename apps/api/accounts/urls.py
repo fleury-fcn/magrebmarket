@@ -7,7 +7,9 @@ from .views import (
     PasswordChangeView,
     PasswordResetRequestView,
     ProfileView,
+    PublicUserView,
     RegisterView,
+    SellerRatingsView,
 )
 
 app_name = "accounts"
@@ -20,4 +22,6 @@ urlpatterns = [
     path("auth/password/", PasswordChangeView.as_view(), name="password-change"),
     path("auth/password/reset/", PasswordResetRequestView.as_view(), name="password-reset"),
     path("auth/csrf/", CSRFTokenView.as_view(), name="csrf"),
+    path("users/<int:pk>/", PublicUserView.as_view(), name="public-user"),
+    path("users/<int:pk>/ratings/", SellerRatingsView.as_view(), name="seller-ratings"),
 ]

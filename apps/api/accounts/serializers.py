@@ -1,10 +1,11 @@
 from __future__ import annotations
 
 from django.contrib.auth import authenticate
+from django.db.models import Avg
 from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 
-from .models import User
+from .models import SellerRating, User
 
 
 class PasswordResetRequestSerializer(serializers.Serializer):
@@ -15,6 +16,11 @@ class PasswordResetRequestSerializer(serializers.Serializer):
 
 
 class PublicUserSerializer(serializers.ModelSerializer):
+    avg_rating = serializers.SerializerMethodField()
+    ratings_count = serializers.SerializerMethodField()
+    listings_count = serializers.SerializerMethodField()
+    date_joined = serializers.DateTimeField(read_only=True)
+
     class Meta:
         model = User
         fields = [
@@ -25,7 +31,43 @@ class PublicUserSerializer(serializers.ModelSerializer):
             "country",
             "avatar",
             "is_verified",
+            "date_joined",
+            "avg_rating",
+            "ratings_count",
+            "listings_count",
         ]
+
+    def get_avg_rating(self, obj):
+        result = obj.ratings_received.aggregate(avg=Avg("score"))["avg"]
+        return round(result, 1) if result else None
+
+    def get_ratings_count(self, obj):
+        return obj.ratings_received.count()
+
+    def get_listings_count(self, obj):
+        return obj.listings.filter(status="published").count()
+
+
+class SellerRatingSerializer(serializers.ModelSerializer):
+    reviewer_name = serializers.SerializerMethodField()
+    reviewer_avatar = serializers.SerializerMethodField()
+
+    class Meta:
+        model = SellerRating
+        fields = ["id", "score", "comment", "created_at", "reviewer_name", "reviewer_avatar"]
+        read_only_fields = ["id", "created_at", "reviewer_name", "reviewer_avatar"]
+
+    def get_reviewer_name(self, obj):
+        u = obj.reviewer
+        return f"{u.first_name} {u.last_name}".strip() or u.email.split("@")[0]
+
+    def get_reviewer_avatar(self, obj):
+        return obj.reviewer.avatar or None
+
+    def validate_score(self, value):
+        if not 1 <= value <= 5:
+            raise serializers.ValidationError("Le score doit être entre 1 et 5.")
+        return value
 
 
 class RegisterSerializer(serializers.ModelSerializer):

@@ -28,3 +28,19 @@ class User(AbstractUser):
 
     def __str__(self) -> str:  # pragma: no cover - affichage admin
         return f"{self.first_name} {self.last_name}".strip() or self.email
+
+
+class SellerRating(models.Model):
+    seller = models.ForeignKey(User, on_delete=models.CASCADE, related_name="ratings_received")
+    reviewer = models.ForeignKey(User, on_delete=models.CASCADE, related_name="ratings_given")
+    score = models.PositiveSmallIntegerField()  # 1-5
+    comment = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ("seller", "reviewer")
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover
+        return f"{self.reviewer} → {self.seller} : {self.score}/5"
+
