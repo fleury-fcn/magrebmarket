@@ -66,7 +66,8 @@ interface SearchApiListing {
   is_pro: boolean;
   is_favorite: boolean;
   cover_image: string | null;
-  photos: string[];
+  photos: string[] | null;
+  images?: { id: number; image_url: string; is_primary: boolean }[];
   posted_at: string | null;
   views_count: number;
 }
@@ -109,9 +110,16 @@ const buildSearchParams = (filters: SearchFilters) => {
 };
 
 const mapListingToAd = (listing: SearchApiListing): Ad => {
-  const photos = Array.isArray(listing.photos) ? listing.photos : [];
-  const cover = listing.cover_image ? [listing.cover_image] : [];
-  const mergedPhotos = photos.length > 0 ? photos : cover;
+  const rawPhotos = Array.isArray(listing.photos) && listing.photos.length > 0 ? listing.photos : null;
+  const imageUrls = Array.isArray(listing.images) ? listing.images.map(img => img.image_url) : [];
+  let mergedPhotos: string[];
+  if (rawPhotos) {
+    mergedPhotos = rawPhotos;
+  } else if (imageUrls.length > 0) {
+    mergedPhotos = imageUrls;
+  } else {
+    mergedPhotos = listing.cover_image ? [listing.cover_image] : [];
+  }
   return {
     id: String(listing.id),
     title: listing.title,
