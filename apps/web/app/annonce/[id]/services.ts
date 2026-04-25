@@ -34,9 +34,8 @@ export const fetchAnnonceDetail = async (id: string | number) => {
   // Normalise seller : first_name+last_name → username
   if (data.seller) {
     const s = data.seller as unknown as ApiSeller;
-    const displayName = s.username
-      ?? ((s.first_name ?? '') + ' ' + (s.last_name ?? '')).trim()
-      || `Vendeur #${s.id}`;
+    const fullName = ((s.first_name ?? '') + ' ' + (s.last_name ?? '')).trim();
+    const displayName = s.username ?? (fullName || `Vendeur #${s.id}`);
     (data.seller as unknown as Record<string, unknown>)['username'] = displayName;
     (data.seller as unknown as Record<string, unknown>)['companyName'] = s.company_name ?? undefined;
     (data.seller as unknown as Record<string, unknown>)['activeAdsCount'] = s.active_ads_count ?? s.listings_count ?? 0;
