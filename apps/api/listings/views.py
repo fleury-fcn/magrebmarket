@@ -116,10 +116,11 @@ class ListingViewSet(viewsets.ModelViewSet):
 		listing = serializer.save(
 			seller=self.request.user if self.request.user.is_authenticated else None,
 			slug=generate_listing_slug(serializer.validated_data['title']),
-			status=Listing.Status.PENDING,
+			status=Listing.Status.PUBLISHED,
 		)
+		listing.publish()  # sets published_at
 		apply_promotion_rules(listing)
-		apply_auto_moderation(listing)
+		apply_auto_moderation(listing)  # may override to PENDING if flagged
 		listing.save()
 		return listing
 
