@@ -1,0 +1,30 @@
+version: "3.9"
+services:
+  db:
+    image: postgres:15
+    container_name: maghreb-market-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: maghreb
+      POSTGRES_PASSWORD: maghreb
+      POSTGRES_DB: maghreb_market
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+  api:
+    build: ./apps/api
+    container_name: maghreb-market-api
+    command: python manage.py runserver 0.0.0.0:4000
+    env_file:
+      - ./apps/api/.env.example
+    ports:
+      - "4000:4000"
+    depends_on:
+      - db
+    volumes:
+      - ./apps/api:/app
+
+volumes:
+  db_data:

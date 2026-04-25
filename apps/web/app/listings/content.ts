@@ -1,0 +1,632 @@
+import type { CountryCode } from "../auth/utils/geography";
+import type { SupportedLanguage } from "../i18n/languages";
+
+export type SortKey = "recent" | "priceAsc" | "priceDesc";
+
+export interface ListingCardData {
+  id: string;
+  slug: string;
+  title: string;
+  subtitle: string;
+  priceLabel: string;
+  priceValue: number;
+  currency: string;
+  categoryValue: string;
+  categoryLabel: string;
+  country: CountryCode;
+  location: string;
+  highlights: string[];
+  badge?: "pro" | "urgent" | "new";
+  listedHoursAgo: number;
+  cover: string;
+}
+
+interface ListingContent {
+  hero: {
+    eyebrow: string;
+    title: string;
+    subtitle: string;
+    pill: string;
+  };
+  stats: Array<{ value: string; label: string }>;
+  filters: {
+    searchPlaceholder: string;
+    categoryLabel: string;
+    categoryAll: string;
+    countryLabel: string;
+    countryAll: string;
+    priceLabel: string;
+    minPlaceholder: string;
+    maxPlaceholder: string;
+    resetLabel: string;
+    resultsLabel: string;
+  };
+  sorting: {
+    label: string;
+    options: Array<{ value: SortKey; label: string }>;
+  };
+  cta: {
+    title: string;
+    subtitle: string;
+    button: string;
+    href: string;
+    viewDetails: string;
+  };
+  badges: Record<"pro" | "urgent" | "new", string>;
+  noResults: {
+    title: string;
+    description: string;
+  };
+  mockListings: ListingCardData[];
+}
+
+const sharedMockListings = {
+  ids: {
+    villa: "villa-anfa",
+    pickup: "pickup-dakar",
+    loft: "loft-alger",
+    land: "terrain-sfax",
+    riad: "riad-marrakech",
+    office: "bureau-tunis",
+    boat: "bateau-nkc",
+    tech: "studio-casa",
+  },
+};
+
+const LISTINGS_CONTENT: Record<SupportedLanguage, ListingContent> = {
+  fr: {
+    hero: {
+      eyebrow: "Sélection Maghreb",
+      title: "Parcourez des annonces vérifiées dans l'UMA",
+      subtitle: "Immobilier, véhicules, équipements pros : comparez les offres en Mauritanie, au Maroc, en Algérie, en Tunisie et en Libye.",
+      pill: "Nouvelles annonces chaque heure",
+    },
+    stats: [
+      { value: "65 000+", label: "Annonces actives" },
+      { value: "320", label: "Villes couvertes" },
+      { value: "5", label: "Pays triés" },
+    ],
+    filters: {
+      searchPlaceholder: "Recherche par mot-clé, ville ou vendeur",
+      categoryLabel: "Catégorie",
+      categoryAll: "Toutes les catégories",
+      countryLabel: "Pays",
+      countryAll: "Tous les pays",
+      priceLabel: "Budget (toutes devises)",
+      minPlaceholder: "Min",
+      maxPlaceholder: "Max",
+      resetLabel: "Réinitialiser",
+      resultsLabel: "{count} résultats",
+    },
+    sorting: {
+      label: "Trier par",
+      options: [
+        { value: "recent", label: "Plus récents" },
+        { value: "priceAsc", label: "Prix croissant" },
+        { value: "priceDesc", label: "Prix décroissant" },
+      ],
+    },
+    cta: {
+      title: "Besoin de visibilité supplémentaire ?",
+      subtitle: "Boostez votre annonce dans plusieurs pays du Maghreb en quelques minutes.",
+      button: "Publier une annonce",
+      href: "/listings/new",
+      viewDetails: "Voir le détail",
+    },
+    badges: {
+      pro: "Pro",
+      urgent: "Urgent",
+      new: "Nouveau",
+    },
+    noResults: {
+      title: "Aucune annonce ne correspond",
+      description: "Essayez d'autres filtres ou réduisez les critères de prix.",
+    },
+    mockListings: [
+      {
+        id: sharedMockListings.ids.villa,
+        slug: "villa-architecte-anfa",
+        title: "Villa contemporaine Anfa Supérieur",
+        subtitle: "5 pièces · 420 m² · Piscine chauffée",
+        priceLabel: "3 450 000 MAD",
+        priceValue: 3450000,
+        currency: "MAD",
+        categoryValue: "immobilier",
+        categoryLabel: "Immobilier",
+        country: "MA",
+        location: "Casablanca, Maroc",
+        highlights: ["Vue océan", "Rénovée en 2024"],
+        badge: "pro",
+        listedHoursAgo: 2,
+        cover: "🏡",
+      },
+      {
+        id: sharedMockListings.ids.pickup,
+        slug: "pickup-export-dakar",
+        title: "Pickup Toyota Hilux 2.8D export",
+        subtitle: "2022 · 38 000 km · Carnet suivi",
+        priceLabel: "34 900 EUR",
+        priceValue: 34900,
+        currency: "EUR",
+        categoryValue: "vehicules",
+        categoryLabel: "Véhicules",
+        country: "MR",
+        location: "Nouakchott, Mauritanie",
+        highlights: ["Disponible immédiat", "TVA récupérable"],
+        badge: "urgent",
+        listedHoursAgo: 6,
+        cover: "🚗",
+      },
+      {
+        id: sharedMockListings.ids.loft,
+        slug: "loft-smart-alger",
+        title: "Loft smart office Hydra",
+        subtitle: "180 m² · Domotique complète",
+        priceLabel: "285 000 000 DZD",
+        priceValue: 285000000,
+        currency: "DZD",
+        categoryValue: "immobilier",
+        categoryLabel: "Immobilier",
+        country: "DZ",
+        location: "Alger, Algérie",
+        highlights: ["Terrasse panoramique", "3 parkings"],
+        badge: "pro",
+        listedHoursAgo: 12,
+        cover: "🏢",
+      },
+      {
+        id: sharedMockListings.ids.land,
+        slug: "terrain-indus-sfax",
+        title: "Terrain industriel près du port",
+        subtitle: "18 000 m² · Viabilisé",
+        priceLabel: "5 500 000 TND",
+        priceValue: 5500000,
+        currency: "TND",
+        categoryValue: "immobilier",
+        categoryLabel: "Immobilier",
+        country: "TN",
+        location: "Sfax, Tunisie",
+        highlights: ["Accès camions", "Zone logistique"],
+        listedHoursAgo: 20,
+        cover: "🏗️",
+      },
+      {
+        id: sharedMockListings.ids.riad,
+        slug: "riad-medina-invest",
+        title: "Riad luxe exploité en maison d'hôtes",
+        subtitle: "9 suites · Taux d'occupation 82%",
+        priceLabel: "1 980 000 MAD",
+        priceValue: 1980000,
+        currency: "MAD",
+        categoryValue: "immobilier",
+        categoryLabel: "Immobilier",
+        country: "MA",
+        location: "Marrakech, Maroc",
+        highlights: ["Licence maison d'hôtes", "Staff formé"],
+        cover: "🌴",
+        listedHoursAgo: 30,
+      },
+      {
+        id: sharedMockListings.ids.office,
+        slug: "plateau-lac1-tunis",
+        title: "Plateau bureau Lac 1",
+        subtitle: "280 m² · Fibre dédiée",
+        priceLabel: "9 200 TND / mois",
+        priceValue: 9200,
+        currency: "TND",
+        categoryValue: "immobilier",
+        categoryLabel: "Immobilier",
+        country: "TN",
+        location: "Tunis, Tunisie",
+        highlights: ["Divisible", "Parking visiteurs"],
+        badge: "new",
+        listedHoursAgo: 8,
+        cover: "🏙️",
+      },
+      {
+        id: sharedMockListings.ids.boat,
+        slug: "chalutier-nkc",
+        title: "Chalutier aluminium reconditionné",
+        subtitle: "18 m · Prêt pour la pêche hauturière",
+        priceLabel: "12 500 000 MRU",
+        priceValue: 12500000,
+        currency: "MRU",
+        categoryValue: "equipements",
+        categoryLabel: "Équipements pros",
+        country: "MR",
+        location: "Nouadhibou, Mauritanie",
+        highlights: ["Inspection 2025", "Équipage formé"],
+        badge: "pro",
+        listedHoursAgo: 16,
+        cover: "🛥️",
+      },
+      {
+        id: sharedMockListings.ids.tech,
+        slug: "studio-pro-casa",
+        title: "Studio production audio Casa Finance City",
+        subtitle: "Traitement acoustique + serveur rendu",
+        priceLabel: "12 500 MAD / mois",
+        priceValue: 12500,
+        currency: "MAD",
+        categoryValue: "services",
+        categoryLabel: "Services",
+        country: "MA",
+        location: "Casablanca, Maroc",
+        highlights: ["Backline complet", "Support 24/7"],
+        listedHoursAgo: 4,
+        cover: "🎧",
+      },
+    ],
+  },
+  en: {
+    hero: {
+      eyebrow: "Maghreb spotlight",
+      title: "Browse verified listings across the UMA",
+      subtitle: "Real estate, fleets, pro gear — compare opportunities in Mauritania, Morocco, Algeria, Tunisia, and Libya.",
+      pill: "Fresh uploads every hour",
+    },
+    stats: [
+      { value: "65,000+", label: "Active listings" },
+      { value: "320", label: "Cities covered" },
+      { value: "5", label: "Curated countries" },
+    ],
+    filters: {
+      searchPlaceholder: "Search by keyword, city, or seller",
+      categoryLabel: "Category",
+      categoryAll: "All categories",
+      countryLabel: "Country",
+      countryAll: "All countries",
+      priceLabel: "Budget (all currencies)",
+      minPlaceholder: "Min",
+      maxPlaceholder: "Max",
+      resetLabel: "Reset",
+      resultsLabel: "{count} results",
+    },
+    sorting: {
+      label: "Sort by",
+      options: [
+        { value: "recent", label: "Newest" },
+        { value: "priceAsc", label: "Price: low to high" },
+        { value: "priceDesc", label: "Price: high to low" },
+      ],
+    },
+    cta: {
+      title: "Need extra visibility?",
+      subtitle: "Boost your listing across Maghreb countries in minutes.",
+      button: "Post a listing",
+      href: "/listings/new",
+      viewDetails: "View details",
+    },
+    badges: {
+      pro: "Pro",
+      urgent: "Urgent",
+      new: "New",
+    },
+    noResults: {
+      title: "No listing matches yet",
+      description: "Adjust the filters or widen your price range to discover more inventory.",
+    },
+    mockListings: [
+      {
+        id: sharedMockListings.ids.villa,
+        slug: "modern-villa-anfa",
+        title: "Contemporary villa in Anfa Superior",
+        subtitle: "5 bed · 420 m² · Heated pool",
+        priceLabel: "MAD 3,450,000",
+        priceValue: 3450000,
+        currency: "MAD",
+        categoryValue: "real-estate",
+        categoryLabel: "Real estate",
+        country: "MA",
+        location: "Casablanca, Morocco",
+        highlights: ["Ocean view", "Renovated 2024"],
+        badge: "pro",
+        listedHoursAgo: 2,
+        cover: "🏡",
+      },
+      {
+        id: sharedMockListings.ids.pickup,
+        slug: "hilux-export-nkc",
+        title: "Toyota Hilux 2.8D export-ready",
+        subtitle: "2022 · 38,000 km · Full service history",
+        priceLabel: "EUR 34,900",
+        priceValue: 34900,
+        currency: "EUR",
+        categoryValue: "vehicles",
+        categoryLabel: "Vehicles",
+        country: "MR",
+        location: "Nouakchott, Mauritania",
+        highlights: ["Immediate delivery", "VAT refundable"],
+        badge: "urgent",
+        listedHoursAgo: 6,
+        cover: "🚗",
+      },
+      {
+        id: sharedMockListings.ids.loft,
+        slug: "hydra-smart-loft",
+        title: "Hydra smart loft workspace",
+        subtitle: "180 m² · Full home automation",
+        priceLabel: "DZD 285,000,000",
+        priceValue: 285000000,
+        currency: "DZD",
+        categoryValue: "real-estate",
+        categoryLabel: "Real estate",
+        country: "DZ",
+        location: "Algiers, Algeria",
+        highlights: ["Panoramic terrace", "3 parking spots"],
+        badge: "pro",
+        listedHoursAgo: 12,
+        cover: "🏢",
+      },
+      {
+        id: sharedMockListings.ids.land,
+        slug: "logistics-land-sfax",
+        title: "Industrial land near Sfax port",
+        subtitle: "18,000 m² · Ready for utilities",
+        priceLabel: "TND 5,500,000",
+        priceValue: 5500000,
+        currency: "TND",
+        categoryValue: "real-estate",
+        categoryLabel: "Real estate",
+        country: "TN",
+        location: "Sfax, Tunisia",
+        highlights: ["Truck access", "Logistics zoning"],
+        listedHoursAgo: 20,
+        cover: "🏗️",
+      },
+      {
+        id: sharedMockListings.ids.riad,
+        slug: "riad-invest-medina",
+        title: "Luxury riad licensed as guesthouse",
+        subtitle: "9 suites · 82% occupancy",
+        priceLabel: "MAD 1,980,000",
+        priceValue: 1980000,
+        currency: "MAD",
+        categoryValue: "real-estate",
+        categoryLabel: "Real estate",
+        country: "MA",
+        location: "Marrakesh, Morocco",
+        highlights: ["Guesthouse license", "Trained staff"],
+        cover: "🌴",
+        listedHoursAgo: 30,
+      },
+      {
+        id: sharedMockListings.ids.office,
+        slug: "lac1-office-tunis",
+        title: "Grade A office Lac 1",
+        subtitle: "280 m² · Dedicated fiber",
+        priceLabel: "TND 9,200 / month",
+        priceValue: 9200,
+        currency: "TND",
+        categoryValue: "real-estate",
+        categoryLabel: "Real estate",
+        country: "TN",
+        location: "Tunis, Tunisia",
+        highlights: ["Divisible", "Visitor parking"],
+        badge: "new",
+        listedHoursAgo: 8,
+        cover: "🏙️",
+      },
+      {
+        id: sharedMockListings.ids.boat,
+        slug: "trawler-refit-nkc",
+        title: "Refitted aluminum trawler",
+        subtitle: "18 m · Offshore ready",
+        priceLabel: "MRU 12,500,000",
+        priceValue: 12500000,
+        currency: "MRU",
+        categoryValue: "equipment",
+        categoryLabel: "Pro equipment",
+        country: "MR",
+        location: "Nouadhibou, Mauritania",
+        highlights: ["2025 inspection", "Crew included"],
+        badge: "pro",
+        listedHoursAgo: 16,
+        cover: "🛥️",
+      },
+      {
+        id: sharedMockListings.ids.tech,
+        slug: "audio-studio-casa",
+        title: "Audio production studio in CFC",
+        subtitle: "Acoustic treatment + render farm",
+        priceLabel: "MAD 12,500 / month",
+        priceValue: 12500,
+        currency: "MAD",
+        categoryValue: "services",
+        categoryLabel: "Services",
+        country: "MA",
+        location: "Casablanca, Morocco",
+        highlights: ["Full backline", "24/7 support"],
+        listedHoursAgo: 4,
+        cover: "🎧",
+      },
+    ],
+  },
+  ar: {
+    hero: {
+      eyebrow: "أبرز العروض",
+      title: "تصفّح إعلانات موثوقة عبر اتحاد المغرب العربي",
+      subtitle: "عقارات، مركبات، تجهيزات مهنية — قارن الفرص في موريتانيا والمغرب والجزائر وتونس وليبيا.",
+      pill: "إعلانات جديدة كل ساعة",
+    },
+    stats: [
+      { value: "+٦٥ ألف", label: "إعلان نشط" },
+      { value: "٣٢٠", label: "مدينة مشمولة" },
+      { value: "٥", label: "دول مختارة" },
+    ],
+    filters: {
+      searchPlaceholder: "ابحث بالمدينة أو الكلمات المفتاحية أو اسم البائع",
+      categoryLabel: "الفئة",
+      categoryAll: "كل الفئات",
+      countryLabel: "الدولة",
+      countryAll: "جميع الدول",
+      priceLabel: "الميزانية (كل العملات)",
+      minPlaceholder: "أدنى",
+      maxPlaceholder: "أعلى",
+      resetLabel: "تصفير",
+      resultsLabel: "{count} نتيجة",
+    },
+    sorting: {
+      label: "ترتيب حسب",
+      options: [
+        { value: "recent", label: "الأحدث" },
+        { value: "priceAsc", label: "السعر من الأقل" },
+        { value: "priceDesc", label: "السعر من الأعلى" },
+      ],
+    },
+    cta: {
+      title: "تبحث عن مزيد من الظهور؟",
+      subtitle: "قم بترقية إعلانك للوصول إلى مشترين في كل دول المغرب العربي.",
+      button: "انشر إعلاناً",
+      href: "/listings/new",
+      viewDetails: "عرض التفاصيل",
+    },
+    badges: {
+      pro: "محترف",
+      urgent: "عاجل",
+      new: "جديد",
+    },
+    noResults: {
+      title: "لا توجد نتائج مطابقة",
+      description: "عدّل المرشحات أو وسّع ميزانية السعر للاطلاع على عروض أخرى.",
+    },
+    mockListings: [
+      {
+        id: sharedMockListings.ids.villa,
+        slug: "villa-anfa-ar",
+        title: "فيلا عصرية في أنفا العليا",
+        subtitle: "٥ غرف · ٤٢٠ م٢ · مسبح مدفأ",
+        priceLabel: "٣٬٤٥٠٬٠٠٠ درهم",
+        priceValue: 3450000,
+        currency: "MAD",
+        categoryValue: "real-estate",
+        categoryLabel: "عقارات",
+        country: "MA",
+        location: "الدار البيضاء، المغرب",
+        highlights: ["إطلالة بحرية", "تجديد ٢٠٢٤"],
+        badge: "pro",
+        listedHoursAgo: 2,
+        cover: "🏡",
+      },
+      {
+        id: sharedMockListings.ids.pickup,
+        slug: "hilux-nkc-ar",
+        title: "تويوتا هايلوكس ٢.٨ جاهزة للتصدير",
+        subtitle: "٢٠٢٢ · ٣٨ ألف كم · سجل صيانة كامل",
+        priceLabel: "٣٤٬٩٠٠ يورو",
+        priceValue: 34900,
+        currency: "EUR",
+        categoryValue: "vehicles",
+        categoryLabel: "مركبات",
+        country: "MR",
+        location: "نواكشوط، موريتانيا",
+        highlights: ["تسليم فوري", "ضريبة قابلة للاسترجاع"],
+        badge: "urgent",
+        listedHoursAgo: 6,
+        cover: "🚗",
+      },
+      {
+        id: sharedMockListings.ids.loft,
+        slug: "hydra-loft-ar",
+        title: "لوفت ذكي في حيدرة",
+        subtitle: "١٨٠ م٢ · أتمتة كاملة",
+        priceLabel: "٢٨٥٬٠٠٠٬٠٠٠ دينار",
+        priceValue: 285000000,
+        currency: "DZD",
+        categoryValue: "real-estate",
+        categoryLabel: "عقارات",
+        country: "DZ",
+        location: "الجزائر العاصمة، الجزائر",
+        highlights: ["شرفة بانورامية", "٣ مواقف"],
+        badge: "pro",
+        listedHoursAgo: 12,
+        cover: "🏢",
+      },
+      {
+        id: sharedMockListings.ids.land,
+        slug: "sfax-land-ar",
+        title: "أرض صناعية قرب ميناء صفاقس",
+        subtitle: "١٨٬٠٠٠ م٢ · جاهزة للمرافق",
+        priceLabel: "٥٬٥٠٠٬٠٠٠ دينار",
+        priceValue: 5500000,
+        currency: "TND",
+        categoryValue: "real-estate",
+        categoryLabel: "عقارات",
+        country: "TN",
+        location: "صفاقس، تونس",
+        highlights: ["وصول للشاحنات", "منطقة لوجستية"],
+        listedHoursAgo: 20,
+        cover: "🏗️",
+      },
+      {
+        id: sharedMockListings.ids.riad,
+        slug: "riad-medina-ar",
+        title: "رياض فاخر برخصة دار ضيافة",
+        subtitle: "٩ أجنحة · إشغال ٨٢٪",
+        priceLabel: "١٬٩٨٠٬٠٠٠ درهم",
+        priceValue: 1980000,
+        currency: "MAD",
+        categoryValue: "real-estate",
+        categoryLabel: "عقارات",
+        country: "MA",
+        location: "مراكش، المغرب",
+        highlights: ["رخصة رسمية", "فريق محترف"],
+        cover: "🌴",
+        listedHoursAgo: 30,
+      },
+      {
+        id: sharedMockListings.ids.office,
+        slug: "lac1-office-ar",
+        title: "مكتب درجة أولى في ضفاف البحيرة 1",
+        subtitle: "٢٨٠ م٢ · ألياف مخصصة",
+        priceLabel: "٩٬٢٠٠ دينار / شهر",
+        priceValue: 9200,
+        currency: "TND",
+        categoryValue: "real-estate",
+        categoryLabel: "عقارات",
+        country: "TN",
+        location: "تونس، تونس",
+        highlights: ["قابل للتقسيم", "موقف للزوار"],
+        badge: "new",
+        listedHoursAgo: 8,
+        cover: "🏙️",
+      },
+      {
+        id: sharedMockListings.ids.boat,
+        slug: "trawler-nkc-ar",
+        title: "سفينة صيد ألومنيوم معاد تأهيلها",
+        subtitle: "١٨ م · جاهزة للبحر العميق",
+        priceLabel: "١٢٬٥٠٠٬٠٠٠ أوقية",
+        priceValue: 12500000,
+        currency: "MRU",
+        categoryValue: "equipment",
+        categoryLabel: "معدات مهنية",
+        country: "MR",
+        location: "نواذيبو، موريتانيا",
+        highlights: ["فحص ٢٠٢٥", "طاقم متكامل"],
+        badge: "pro",
+        listedHoursAgo: 16,
+        cover: "🛥️",
+      },
+      {
+        id: sharedMockListings.ids.tech,
+        slug: "studio-cfc-ar",
+        title: "استوديو إنتاج صوتي في كازا فاينانس سيتي",
+        subtitle: "معالجة صوتية + خادم تصيير",
+        priceLabel: "١٢٬٥٠٠ درهم / شهر",
+        priceValue: 12500,
+        currency: "MAD",
+        categoryValue: "services",
+        categoryLabel: "خدمات",
+        country: "MA",
+        location: "الدار البيضاء، المغرب",
+        highlights: ["معدات كاملة", "دعم ٢٤/٧"],
+        listedHoursAgo: 4,
+        cover: "🎧",
+      },
+    ],
+  },
+};
+
+export const getListingsContent = (language: SupportedLanguage): ListingContent =>
+  LISTINGS_CONTENT[language] ?? LISTINGS_CONTENT.fr;

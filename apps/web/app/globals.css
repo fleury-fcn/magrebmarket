@@ -1,0 +1,64 @@
+:root {
+  --sand: #fef9f3;
+  --desert: #fdbb74;
+  --night: #0b1f32;
+  --oasis: #14b8a6;
+  --spice: #f97316;
+  --sky: #0ea5e9;
+  --border: rgba(11, 31, 50, 0.12);
+  --card: rgba(255, 255, 255, 0.9);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-body), "Space Grotesk", sans-serif;
+  background: radial-gradient(circle at top, #ffe9cc, #fff8f0 35%, #fef5ef 55%, #ffffff 100%);
+  color: var(--night);
+  min-height: 100vh;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+main {
+  width: min(1200px, 90vw);
+  margin: 0 auto;
+  padding-bottom: 4rem;
+}
+
+.section-label {
+  font-size: 0.85rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(11, 31, 50, 0.6);
+}
+
+.card {
+  background: var(--card);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  padding: 1.5rem;
+}
+
+.grid-two {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.grid-three {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.25rem;
+}
+
+button {
+  font-family: inherit;
+}

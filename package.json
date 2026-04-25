@@ -1,0 +1,23 @@
+{
+  "name": "maghreb-market",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:web": "npm run dev --workspace web",
+    "dev:api": "cd apps/api && python manage.py runserver 0.0.0.0:4000",
+    "build": "npm run build --workspace web",
+    "lint": "npm run lint --workspace web",
+    "start:web": "npm run start --workspace web",
+    "start:api": "cd apps/api && python manage.py runserver 0.0.0.0:4000",
+    "format": "prettier --write ."
+  },
+  "devDependencies": {
+    "eslint": "^8.57.0",
+    "prettier": "^3.2.5",
+    "typescript": "^5.4.0"
+  }
+}
