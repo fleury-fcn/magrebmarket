@@ -48,8 +48,8 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({ images, title, isUrg
   return (
     <div>
       <div style={{ position: 'relative', aspectRatio: '4/3', overflow: 'hidden', borderRadius: 12, background: LBC.gray100 }}>
-        <button aria-label="Voir l'image" onClick={() => openLightbox(currentIndex)} style={{ all: 'unset', cursor: 'pointer', display: 'block' }}>
-          <Image src={images[currentIndex].url} alt={images[currentIndex].alt || title} width={1200} height={900} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+        <button aria-label="Voir l'image" onClick={() => openLightbox(currentIndex)} style={{ all: 'unset', cursor: 'pointer', display: 'block', width: '100%', height: '100%', position: 'absolute', inset: 0 }}>
+          <Image src={images[currentIndex].url} alt={images[currentIndex].alt || title} fill sizes="(max-width:768px) 100vw, 800px" style={{ objectFit: 'cover' }} />
         </button>
         {isUrgent && (
           <span style={{ position: 'absolute', top: 12, left: 12, background: LBC.urgent, color: LBC.white, padding: '4px 10px', borderRadius: 6, fontWeight: 800 }}>Urgent</span>

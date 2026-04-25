@@ -1,48 +1,48 @@
 import { apiFetch } from '../../../lib/api';
 import type { AnnonceDetail, ReportForm, SimilarAnnonce } from '../../annonce/types';
 
-interface ApiSeller {
-  id: number;
-  first_name?: string;
-  last_name?: string;
-  username?: string;
-  avatar?: string;
-  city?: string;
-  country?: string;
-  company_name?: string;
-  phone?: string;
-  listings_count?: number;
-  active_ads_count?: number;
-}
-
 export const fetchAnnonceDetail = async (id: string | number) => {
-  const data = await apiFetch<AnnonceDetail & {
-    images?: { id: number; image_url: string; is_primary: boolean }[];
-    seller?: ApiSeller;
-  }>(`listings/${id}/`);
+  const raw = await apiFetch<Record<string, unknown>>(`listings/${id}/`);
+  if (!raw) return null as unknown as AnnonceDetail;
 
-  if (!data) return data;
+  // Normalise images
+  const rawImages = Array.isArray(raw['images']) ? raw['images'] as { id: number; image_url: string; is_primary: boolean }[] : [];
+  const images: AnnonceDetail['images'] = rawImages.map(img => ({
+    id: img.id,
+    url: img.image_url ?? '',
+    isMain: img.is_primary,
+  }));
 
-  // Normalise image_url → url pour ImageGallery
-  if (Array.isArray(data.images)) {
-    data.images = data.images.map(img => ({
-      ...img,
-      url: (img as unknown as { url?: string }).url ?? img.image_url ?? '',
-    })) as AnnonceDetail['images'];
-  }
+  // Normalise seller
+  const s = (raw['seller'] ?? {}) as Record<string, unknown>;
+  const fullName = (((s['first_name'] ?? '') as string) + ' ' + ((s['last_name'] ?? '') as string)).trim();
+  const sellerId = s['id'] as number;
+  const seller: AnnonceDetail['seller'] = {
+    id: sellerId,
+    username: (s['username'] as string | undefined) ?? (fullName || `Vendeur #${sellerId}`),
+    avatar: (s['avatar'] as string | undefined) || undefined,
+    companyName: (s['company_name'] as string | undefined) ?? undefined,
+    city: (s['city'] as string | undefined) ?? '',
+    activeAdsCount: (s['active_ads_count'] as number | undefined) ?? (s['listings_count'] as number | undefined) ?? 0,
+    phone: (s['phone'] as string | undefined) ?? undefined,
+  };
 
-  // Normalise seller : first_name+last_name → username
-  if (data.seller) {
-    const s = data.seller as unknown as ApiSeller;
-    const fullName = ((s.first_name ?? '') + ' ' + (s.last_name ?? '')).trim();
-    const displayName = s.username ?? (fullName || `Vendeur #${s.id}`);
-    (data.seller as unknown as Record<string, unknown>)['username'] = displayName;
-    (data.seller as unknown as Record<string, unknown>)['companyName'] = s.company_name ?? undefined;
-    (data.seller as unknown as Record<string, unknown>)['activeAdsCount'] = s.active_ads_count ?? s.listings_count ?? 0;
-    (data.seller as unknown as Record<string, unknown>)['city'] = s.city ?? '';
-    (data.seller as unknown as Record<string, unknown>)['avatar'] = s.avatar || undefined;
-    (data.seller as unknown as Record<string, unknown>)['phone'] = s.phone ?? undefined;
-  }
+  const data: AnnonceDetail = {
+    id: raw['id'] as number,
+    title: raw['title'] as string,
+    description: raw['description'] as string,
+    price: raw['price'] == null ? null : Number(raw['price']),
+    isFree: raw['price'] == null || Number(raw['price']) === 0,
+    isPriceNegotiable: (raw['negotiable'] as boolean | undefined) ?? false,
+    condition: (raw['condition'] as AnnonceDetail['condition']) ?? 'new',
+    category: raw['category'] as string,
+    subCategory: raw['sub_category'] as string | undefined,
+    city: raw['city'] as string,
+    postalCode: (raw['zip_code'] as string | undefined) ?? undefined,
+    isUrgent: (raw['is_urgent'] as boolean | undefined) ?? false,
+    images,
+    seller,
+  };
 
   return data;
 };

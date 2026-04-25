@@ -66,7 +66,7 @@ export function AnnonceDetailView({
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, flexDirection: isMobile ? 'column' : 'row' }}>
               <div style={{ flex: 1 }}>
                 <h1 style={{ margin: '0 0 8px', fontSize: 22 }}>{annonce.title}</h1>
-                <div style={{ fontSize: 28, fontWeight: 900 }}>{annonce.price ? `${annonce.price.toLocaleString('fr-FR')} €` : 'Gratuit'}</div>
+                <div style={{ fontSize: 28, fontWeight: 900 }}>{annonce.price ? `${Number(annonce.price).toLocaleString('fr-FR')} €` : 'Gratuit'}</div>
                 {annonce.isPriceNegotiable && <div style={{ marginTop: 8, color: LBC.green }}>Prix négociable</div>}
               </div>
               <div style={{ width: isMobile ? '100%' : 220 }}>
