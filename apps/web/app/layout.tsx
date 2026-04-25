@@ -7,7 +7,10 @@ import { LanguageProvider } from "./i18n/LanguageProvider";
 
 export const metadata: Metadata = {
   title: "Maghreb Market — Annonces locales",
-  description: "Le hub d'annonces premium pour la Mauritanie, le Maroc, l'Algérie, la Tunisie et la Libye."
+  description: "Le hub d'annonces premium pour la Mauritanie, le Maroc, l'Algérie, la Tunisie et la Libye.",
+  other: {
+    "color-scheme": "light only",
+  }
 };
 
 const RootLayout = ({ children }: { children: ReactNode }) => (
