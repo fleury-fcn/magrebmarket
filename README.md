@@ -1,6 +1,8 @@
+🇬🇧 English version · 🇫🇷 [Version française](README.fr.md)
+
 # Maghreb Market
 
-> Plateforme d'annonces classées premium pour l'Afrique du Nord — Mauritanie · Maroc · Algérie · Tunisie · Libye
+> Premium classifieds marketplace for North Africa — Mauritania · Morocco · Algeria · Tunisia · Libya
 
 [![Next.js](https://img.shields.io/badge/Next.js-14-black?logo=next.js)](https://nextjs.org)
 [![Django](https://img.shields.io/badge/Django-6.0-092E20?logo=django)](https://djangoproject.com)
@@ -10,47 +12,47 @@
 
 ---
 
-## Table des matières
+## Table of contents
 
-1. [Vue d'ensemble](#vue-densemble)
-2. [Fonctionnalités](#fonctionnalités)
+1. [Overview](#overview)
+2. [Features](#features)
 3. [Architecture](#architecture)
-4. [Stack technique](#stack-technique)
-5. [Structure du monorepo](#structure-du-monorepo)
-6. [Démarrage rapide](#démarrage-rapide)
-7. [Variables d'environnement](#variables-denvironnement)
-8. [API — Référence des endpoints](#api--référence-des-endpoints)
-9. [Déploiement](#déploiement)
-10. [Qualité & lint](#qualité--lint)
+4. [Tech stack](#tech-stack)
+5. [Monorepo structure](#monorepo-structure)
+6. [Quick start](#quick-start)
+7. [Environment variables](#environment-variables)
+8. [API — Endpoint reference](#api--endpoint-reference)
+9. [Deployment](#deployment)
+10. [Quality & linting](#quality--linting)
 11. [Roadmap](#roadmap)
 
 ---
 
-## Vue d'ensemble
+## Overview
 
-Maghreb Market est un marketplace d'annonces inspiré de LeBonCoin, conçu spécifiquement pour les marchés nord-africains. Il propose une expérience moderne et localisée : recherche géographique fine (pays → région → ville), catégories adaptées aux usages locaux, messagerie intégrée et système de promotion d'annonces.
+Maghreb Market is a classifieds marketplace inspired by LeBonCoin, built specifically for North African markets. It offers a modern, localized experience: fine-grained geographic search (country → region → city), categories tailored to local usage, integrated messaging, and a listing promotion system.
 
 ---
 
-## Fonctionnalités
+## Features
 
-### Côté utilisateur
+### User-facing
 
-- **Page d'accueil dynamique** — statistiques live du marché, catégories populaires, annonces récentes, tendances et villes actives
-- **Dépôt d'annonce guidé** — formulaire multi-étapes (catégorie → photos → détails → localisation), upload d'images et publication automatique
-- **Recherche avancée** — filtres combinés : catégorie, pays, région, ville, fourchette de prix, état, type de promotion ; pagination + tri
-- **Fiche annonce** — galerie photos, attributs dynamiques par catégorie, localisation, contact vendeur
-- **Authentification** — inscription, connexion, profil, changement et réinitialisation de mot de passe
-- **Messagerie** — conversations entre acheteur et vendeur avec historique des messages
-- **Favoris** — sauvegarde et gestion des annonces favorites
-- **Signalement** — signalement d'annonces abusives
+- **Dynamic homepage** — live market statistics, popular categories, recent listings, trends, and active cities
+- **Guided listing creation** — multi-step form (category → photos → details → location), image upload, automatic publishing
+- **Advanced search** — combined filters: category, country, region, city, price range, condition, promotion type; pagination + sorting
+- **Listing page** — photo gallery, category-specific dynamic attributes, location, seller contact
+- **Authentication** — sign-up, login, profile, password change and reset
+- **Messaging** — buyer/seller conversations with message history
+- **Favorites** — save and manage favorite listings
+- **Reporting** — flag abusive listings
 
-### Côté back-office
+### Back-office
 
-- **File de modération** — examen, décision individuelle ou en masse, historique
-- **Auto-modération** — scoring automatique à la publication
-- **Règles de promotion** — traitement automatique des types `standard | featured | urgent | premium`
-- **Stats marché** — endpoint dédié `meta/stats/` (total annonces, actives, villes, catégories)
+- **Moderation queue** — review, individual or bulk decisions, history
+- **Auto-moderation** — automatic scoring at publication
+- **Promotion rules** — automatic handling of `standard | featured | urgent | premium` types
+- **Market stats** — dedicated `meta/stats/` endpoint (total listings, active, cities, categories)
 
 ---
 
@@ -59,243 +61,242 @@ Maghreb Market est un marketplace d'annonces inspiré de LeBonCoin, conçu spéc
 ```
 maghreb-market/
 ├── apps/
-│   ├── web/           # Next.js 14 — interface publique (App Router, TypeScript)
-│   └── api/           # Django 6 + DRF — API REST
+│   ├── web/           # Next.js 14 — public interface (App Router, TypeScript)
+│   └── api/            # Django 6 + DRF — REST API
 ├── packages/
-│   ├── config/        # Données partagées : régions, catégories, constantes
-│   └── ui/            # Composants React réutilisables
+│   ├── config/         # Shared data: regions, categories, constants
+│   └── ui/              # Reusable React components
 ├── deploy/
-│   └── nginx/         # Configuration reverse proxy
+│   └── nginx/           # Reverse proxy configuration
 ├── docker-compose.yml
 ├── turbo.json
-└── package.json       # NPM Workspaces root
+└── package.json         # NPM Workspaces root
 ```
 
-Le frontend et le backend communiquent exclusivement via l'API REST (`/api/`). Nginx sert de point d'entrée unique en production.
+The frontend and backend communicate exclusively through the REST API (`/api/`). Nginx serves as the single entry point in production.
 
 ---
 
-## Stack technique
+## Tech stack
 
-| Couche | Technologie | Version | Rôle |
-|---|---|---|---|
-| Frontend | Next.js + React | 14 / 18 | SSR, App Router, SEO des fiches annonces |
-| Langage front | TypeScript | 5.4 | Typage bout en bout |
-| Backend | Django + DRF | 6.0 / 3.17 | API REST, admin, auth, modération |
-| Base de données | PostgreSQL | 15 | Stockage principal, requêtes géo |
-| ORM | psycopg3 | 3.3 | Connecteur PostgreSQL natif async-ready |
-| Conteneurisation | Docker + Compose | — | Postgres + API en développement |
-| Reverse proxy | Nginx | — | SSL, assets statiques, routing |
-| Monorepo | Turborepo + npm Workspaces | — | Orchestration lint/build/test |
-| Lint | ESLint (next/core-web-vitals) | 8 | Qualité code frontend |
+| Layer            | Technology                     | Version    | Role                                     |
+| ----------------- | -------------------------------- | ---------- | ------------------------------------------ |
+| Frontend          | Next.js + React                  | 14 / 18    | SSR, App Router, listing SEO             |
+| Frontend language | TypeScript                       | 5.4        | End-to-end typing                        |
+| Backend           | Django + DRF                     | 6.0 / 3.17 | REST API, admin, auth, moderation        |
+| Database          | PostgreSQL                       | 15         | Primary storage, geo queries             |
+| ORM               | psycopg3                         | 3.3        | Native async-ready PostgreSQL connector  |
+| Containerization  | Docker + Compose                 | —          | Postgres + API in development            |
+| Reverse proxy     | Nginx                            | —          | SSL, static assets, routing              |
+| Monorepo          | Turborepo + npm Workspaces       | —          | Lint/build/test orchestration            |
+| Lint              | ESLint (next/core-web-vitals)    | 8          | Frontend code quality                    |
 
 ---
 
-## Structure du monorepo
+## Monorepo structure
 
-### `apps/web` — Frontend Next.js
+### `apps/web` — Next.js frontend
 
 ```
 app/
-├── page.tsx                  # Accueil (stats, catégories, annonces récentes)
-├── search/                   # Page de résultats + filtres avancés
+├── page.tsx                  # Home (stats, categories, recent listings)
+├── search/                   # Results page + advanced filters
 ├── listings/
-│   ├── new/page.tsx          # Dépôt d'annonce (formulaire multi-étapes)
-│   └── [slug]/page.tsx       # Fiche annonce
-├── auth/                     # Inscription / connexion
-├── dashboard/                # Espace utilisateur
-├── favorites/                # Annonces sauvegardées
-├── messages/                 # Messagerie
-└── i18n/                     # Internationalisation (fr / ar / en)
+│   ├── new/page.tsx          # Listing creation (multi-step form)
+│   └── [slug]/page.tsx       # Listing detail page
+├── auth/                     # Sign-up / login
+├── dashboard/                # User dashboard
+├── favorites/                # Saved listings
+├── messages/                 # Messaging
+└── i18n/                     # Internationalization (fr / ar / en)
 ```
 
-### `apps/api` — Backend Django
+### `apps/api` — Django backend
 
 ```
-listings/    # Annonces, catégories, recherche, modération, uploads, stats
-accounts/    # Authentification, profils utilisateurs
-messaging/   # Conversations et messages
+listings/    # Listings, categories, search, moderation, uploads, stats
+accounts/    # Authentication, user profiles
+messaging/   # Conversations and messages
 ```
 
 ### `packages/config`
 
-Données de référence partagées : liste des pays, régions, villes, schémas de catégories (`CATEGORY_FIELD_SCHEMAS`), devises par pays (`COUNTRY_CURRENCY`).
+Shared reference data: list of countries, regions, cities, category schemas (`CATEGORY_FIELD_SCHEMAS`), currencies per country (`COUNTRY_CURRENCY`).
 
 ---
 
-## Démarrage rapide
+## Quick start
 
-### Prérequis
+### Prerequisites
 
 - **Node.js** ≥ 20
 - **Python** ≥ 3.12
-- **Docker** + **Docker Compose** (recommandé pour PostgreSQL)
+- **Docker** + **Docker Compose** (recommended for PostgreSQL)
 
-### 1. Cloner et installer
+### 1. Clone and install
 
 ```bash
-git clone https://github.com/your-org/maghreb-market.git
-cd maghreb-market
+git clone https://github.com/fleury-fcn/magrebmarket.git
+cd magrebmarket
 npm install
 ```
 
-### 2. Variables d'environnement
+### 2. Environment variables
 
 ```bash
 cp .env.example .env
 cp apps/api/.env.example apps/api/.env
-# Éditez les valeurs selon votre environnement
+# Edit the values for your environment
 ```
 
-### 3. Démarrer la base de données
+### 3. Start the database
 
 ```bash
 docker compose up -d db
 ```
 
-### 4. Initialiser le backend Django
+### 4. Initialize the Django backend
 
 ```bash
 cd apps/api
 python -m venv .venv
-source .venv/bin/activate          # Windows : .venv\Scripts\activate
+source .venv/bin/activate          # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 python manage.py migrate
-python manage.py createsuperuser   # optionnel — accès à /admin/
+python manage.py createsuperuser   # optional — access to /admin/
 python manage.py runserver 0.0.0.0:4000
 ```
 
-### 5. Démarrer le frontend Next.js
+### 5. Start the Next.js frontend
 
-Dans un nouveau terminal, depuis la racine du monorepo :
+In a new terminal, from the monorepo root:
 
 ```bash
 npm run dev:web
 # → http://localhost:3000
 ```
 
-### Alternative : stack complète en Docker
+### Alternative: full stack in Docker
 
 ```bash
 docker compose up --build
 # API → http://localhost:4000
 # DB  → localhost:5432
 ```
-
-> **Note :** Le frontend Next.js tourne en mode dev local via `npm run dev:web` et n'est pas inclus dans le `docker-compose.yml` par défaut.
+> **Note:** The Next.js frontend runs in local dev mode via `npm run dev:web` and is not included in the default `docker-compose.yml`.
 
 ---
 
-## Variables d'environnement
+## Environment variables
 
-### `.env` racine
+### Root `.env`
 
-| Variable | Exemple | Description |
-|---|---|---|
-| `DATABASE_URL` | `postgresql://maghreb:maghreb@localhost:5432/maghreb_market` | Connexion PostgreSQL |
-| `PUBLIC_ASSET_BASE` | `http://localhost:3000` | Base URL des assets publics |
+| Variable            | Example                                                       | Description                |
+| ------------------- | ---------------------------------------------------------------- | ----------------------------- |
+| `DATABASE_URL`      | `postgresql://maghreb:maghreb@localhost:5432/maghreb_market`     | PostgreSQL connection        |
+| `PUBLIC_ASSET_BASE` | `http://localhost:3000`                                           | Base URL for public assets   |
 
-### `apps/web` (préfixe `NEXT_PUBLIC_`)
+### `apps/web` (prefix `NEXT_PUBLIC_`)
 
-| Variable | Exemple | Description |
-|---|---|---|
-| `NEXT_PUBLIC_API_BASE_URL` | `http://localhost:4000` | URL de l'API Django |
-| `NEXT_PUBLIC_MAP_STYLE` | `https://api.mapbox.com/styles/...` | Style Mapbox (cartographie) |
+| Variable                   | Example                              | Description                  |
+| --------------------------- | --------------------------------------- | -------------------------------- |
+| `NEXT_PUBLIC_API_BASE_URL` | `http://localhost:4000`               | Django API URL                |
+| `NEXT_PUBLIC_MAP_STYLE`    | `https://api.mapbox.com/styles/...`   | Mapbox style (mapping)        |
 
 ### `apps/api/.env`
 
-| Variable | Exemple | Description |
-|---|---|---|
-| `DATABASE_URL` | `postgresql://...` | Connexion PostgreSQL |
-| `API_PORT` | `4000` | Port d'écoute Django |
-| `API_HOST` | `0.0.0.0` | Interface d'écoute Django |
+| Variable       | Example              | Description                |
+| -------------- | ----------------------- | ------------------------------ |
+| `DATABASE_URL` | `postgresql://...`    | PostgreSQL connection        |
+| `API_PORT`     | `4000`                | Django listening port        |
+| `API_HOST`     | `0.0.0.0`              | Django listening interface   |
 
 ---
 
-## API — Référence des endpoints
+## API — Endpoint reference
 
-Toutes les routes sont préfixées par `/api/`.
+All routes are prefixed with `/api/`.
 
-### Annonces
+### Listings
 
-| Méthode | Endpoint | Description |
-|---|---|---|
-| `GET` | `listings/search/` | Recherche paginée (params: `q`, `category`, `country`, `region`, `city`, `min_price`, `max_price`, `condition`, `promotion_type`) |
-| `GET` | `listings/` | Liste des annonces |
-| `POST` | `listings/` | Créer une annonce *(auth requise)* |
-| `GET` | `listings/{slug}/` | Détail d'une annonce |
-| `PATCH` | `listings/{slug}/` | Modifier une annonce *(propriétaire)* |
-| `DELETE` | `listings/{slug}/` | Supprimer une annonce *(propriétaire)* |
-| `POST` | `listings/{slug}/publish/` | Publier une annonce en attente |
-| `POST` | `uploads/cover-image/` | Upload d'image (multipart/form-data) |
+| Method   | Endpoint                    | Description                                                                                                                       |
+| -------- | ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------ |
+| `GET`    | `listings/search/`          | Paginated search (params: `q`, `category`, `country`, `region`, `city`, `min_price`, `max_price`, `condition`, `promotion_type`) |
+| `GET`    | `listings/`                  | List listings                                                                                                                     |
+| `POST`   | `listings/`                  | Create a listing *(auth required)*                                                                                                |
+| `GET`    | `listings/{slug}/`           | Listing detail                                                                                                                    |
+| `PATCH`  | `listings/{slug}/`           | Edit a listing *(owner)*                                                                                                          |
+| `DELETE` | `listings/{slug}/`           | Delete a listing *(owner)*                                                                                                        |
+| `POST`   | `listings/{slug}/publish/`   | Publish a pending listing                                                                                                         |
+| `POST`   | `uploads/cover-image/`       | Image upload (multipart/form-data)                                                                                                |
 
-### Méta / Référentiel
+### Meta / Reference
 
-| Méthode | Endpoint | Description |
-|---|---|---|
-| `GET` | `meta/regions/` | Pays et régions |
-| `GET` | `meta/cities/?country=MA` | Villes par code pays |
-| `GET` | `meta/categories/` | Catégories, sous-catégories et champs dynamiques |
-| `GET` | `meta/stats/` | Statistiques du marché (total, actives, villes, catégories) |
+| Method | Endpoint                   | Description                                              |
+| ------ | ----------------------------- | -------------------------------------------------------------- |
+| `GET`  | `meta/regions/`             | Countries and regions                                     |
+| `GET`  | `meta/cities/?country=MA`   | Cities by country code                                     |
+| `GET`  | `meta/categories/`          | Categories, subcategories, and dynamic fields              |
+| `GET`  | `meta/stats/`               | Market statistics (total, active, cities, categories)     |
 
-### Authentification
+### Authentication
 
-| Méthode | Endpoint | Description |
-|---|---|---|
-| `POST` | `auth/register/` | Inscription |
-| `POST` | `auth/login/` | Connexion (session Django) |
-| `POST` | `auth/logout/` | Déconnexion |
-| `GET/PATCH` | `auth/profile/` | Profil utilisateur |
-| `POST` | `auth/password/` | Changement de mot de passe |
-| `POST` | `auth/password/reset/` | Demande de réinitialisation |
-| `GET` | `auth/csrf/` | Récupérer le token CSRF |
+| Method      | Endpoint                | Description                  |
+| ------------ | --------------------------- | -------------------------------- |
+| `POST`      | `auth/register/`         | Sign-up                      |
+| `POST`      | `auth/login/`             | Login (Django session)       |
+| `POST`      | `auth/logout/`            | Logout                       |
+| `GET/PATCH` | `auth/profile/`           | User profile                 |
+| `POST`      | `auth/password/`          | Password change              |
+| `POST`      | `auth/password/reset/`    | Password reset request       |
+| `GET`       | `auth/csrf/`              | Retrieve CSRF token          |
 
-### Messagerie
+### Messaging
 
-| Méthode | Endpoint | Description |
-|---|---|---|
-| `GET/POST` | `messages/conversations/` | Lister / créer une conversation |
-| `GET` | `messages/conversations/{id}/` | Détail d'une conversation |
-| `GET/POST` | `messages/conversations/{id}/messages/` | Historique / envoyer un message |
+| Method     | Endpoint                                 | Description                        |
+| ----------- | -------------------------------------------- | -------------------------------------- |
+| `GET/POST` | `messages/conversations/`                | List / create a conversation       |
+| `GET`      | `messages/conversations/{id}/`           | Conversation detail                |
+| `GET/POST` | `messages/conversations/{id}/messages/`  | History / send a message           |
 
-### Favoris & Signalements
+### Favorites & Reports
 
-| Méthode | Endpoint | Description |
-|---|---|---|
-| `GET/POST/DELETE` | `favorites/` | Gérer les favoris |
-| `POST` | `reports/` | Signaler une annonce |
+| Method             | Endpoint      | Description             |
+| -------------------- | --------------- | -------------------------- |
+| `GET/POST/DELETE`  | `favorites/`   | Manage favorites         |
+| `POST`              | `reports/`     | Report a listing          |
 
-### Modération *(admin)*
+### Moderation *(admin)*
 
-| Méthode | Endpoint | Description |
-|---|---|---|
-| `GET` | `moderation/queue/` | File de modération paginée |
-| `GET` | `moderation/history/` | Historique des décisions |
-| `GET` | `moderation/stats/` | Statistiques de modération |
-| `POST` | `moderation/bulk-decision/` | Décision en masse |
+| Method | Endpoint                      | Description                  |
+| ------ | -------------------------------- | -------------------------------- |
+| `GET`  | `moderation/queue/`            | Paginated moderation queue   |
+| `GET`  | `moderation/history/`          | Decision history              |
+| `GET`  | `moderation/stats/`            | Moderation statistics         |
+| `POST` | `moderation/bulk-decision/`    | Bulk decision                 |
 
 ---
 
-## Déploiement
+## Deployment
 
 ### Nginx (production)
 
-Le fichier `deploy/nginx/default.conf` configure :
+The `deploy/nginx/default.conf` file configures:
 
-- **`/api/`** → proxy vers Django (`http://api:4000`)
-- **`/static/`**, **`/media/`** → assets Django servis directement
-- **Toutes les autres routes** → proxy vers Next.js (`http://web:3000`)
+- **`/api/`** → proxy to Django (`http://api:4000`)
+- **`/static/`**, **`/media/`** → Django assets served directly
+- **All other routes** → proxy to Next.js (`http://web:3000`)
 
-Activez HTTPS avec Let's Encrypt et HTTP/2 avant la mise en production.
+Enable HTTPS with Let's Encrypt and HTTP/2 before going to production.
 
-### Build Next.js
+### Next.js build
 
 ```bash
 cd apps/web
 npm run build && npm run start
 ```
 
-### Django en production
+### Django in production
 
 ```bash
 cd apps/api
@@ -305,51 +306,49 @@ gunicorn maghreb_api.wsgi:application --bind 0.0.0.0:4000 --workers 4
 
 ---
 
-## Qualité & lint
+## Quality & linting
 
 ```bash
-# Lint frontend complet
+# Full frontend lint
 cd apps/web && npx next lint
 
-# Lint ciblé sur un fichier
+# Targeted lint on a single file
 cd apps/web && npx next lint --file app/listings/new/page.tsx
 
-# Vérification TypeScript
+# TypeScript check
 cd apps/web && npx tsc --noEmit
 
-# Lint Python
+# Python lint
 cd apps/api && ruff check .
 ```
 
-Règles ESLint actives : `next/core-web-vitals`, `react-hooks/exhaustive-deps`, `@next/next/no-img-element`, `no-unused-vars`.
+Active ESLint rules: `next/core-web-vitals`, `react-hooks/exhaustive-deps`, `@next/next/no-img-element`, `no-unused-vars`.
 
 ---
 
 ## Roadmap
 
-- [ ] Moteur de recherche full-text (Meilisearch / Elasticsearch)
-- [ ] Notifications push et email (nouvelle annonce, nouveau message)
-- [ ] Paiement en ligne — Stripe + CinetPay (boost, premium)
-- [ ] Application mobile React Native (partage des packages)
-- [ ] Internationalisation complète arabe RTL
-- [ ] Carte interactive des annonces (Mapbox GL)
-- [ ] Système de notation vendeur
+- [ ] Full-text search engine (Meilisearch / Elasticsearch)
+- [ ] Push and email notifications (new listing, new message)
+- [ ] Online payment — Stripe + CinetPay (boost, premium)
+- [ ] React Native mobile app (shared packages)
+- [ ] Full Arabic RTL internationalization
+- [ ] Interactive listings map (Mapbox GL)
+- [ ] Seller rating system
 
 ---
+
+## License
+
+MIT © 2026
 
 ## 👤 Author
 
 <img src="https://github.com/fleury-fcn.png" width="100" style="border-radius: 50%;" alt="Fleury Niyokwizera" />
 
 **Fleury NIYOKWIZERA**
-Master 1 in Applied Statistics and Business Intelligence – ISTA, University of Burundi 🇧🇮 
-Currently pursuing a Master's in Data Modeling – University of Lille France 🇫🇷 
-
-------------------------------------------------------------------------
-
-⭐ **If you find this project interesting, feel free to explore the
-repository and follow my work in AI, Machine Learning and Data
-Science.**
+Master 1 in Applied Statistics and Business Intelligence – ISTA, University of Burundi 🇧🇮
+Currently pursuing a Master's in Data Modeling (Artificial Intelligence track) – University of Lille, France 🇫🇷
 
 [![GitHub](https://img.shields.io/badge/GitHub-fleury--fcn-181717?style=flat&logo=github&logoColor=white)](https://github.com/fleury-fcn)
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-Fleury_Niyokwizera-0A66C2?style=flat&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/fleury-niyokwizera-2a9436291)
