@@ -337,6 +337,13 @@ Règles ESLint actives : `next/core-web-vitals`, `react-hooks/exhaustive-deps`, 
 
 ---
 
-## Licence
+## 👤 Author
 
-MIT © 2026 Maghreb Market
+<img src="https://github.com/fleury-fcn.png" width="100" style="border-radius: 50%;" alt="Fleury Niyokwizera" />
+
+**Fleury NIYOKWIZERA**
+Master 1 in Applied Statistics and Decision-Making Computer Science – ISTA, University of Burundi
+Currently pursuing a Master's in Data Modeling (Artificial Intelligence track) – University of Lille
+
+[![GitHub](https://img.shields.io/badge/GitHub-fleury--fcn-181717?style=flat&logo=github&logoColor=white)](https://github.com/fleury-fcn)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-Fleury_Niyokwizera-0A66C2?style=flat&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/fleury-niyokwizera-2a9436291)
